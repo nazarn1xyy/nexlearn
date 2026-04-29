@@ -38,16 +38,16 @@ export default memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-neutral-200
-          flex flex-col transition-transform duration-200
-          lg:translate-x-0 lg:static lg:z-auto
+          fixed top-0 left-0 z-50 h-dvh w-64 bg-white border-r border-neutral-200
+          flex flex-col transition-transform duration-300 ease-out will-change-transform
+          lg:translate-x-0 lg:static lg:z-auto lg:h-full
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >

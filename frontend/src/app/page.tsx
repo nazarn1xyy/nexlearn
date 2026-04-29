@@ -4,7 +4,7 @@ import { GraduationCap, BookOpen, ClipboardCheck, Award, ArrowRight } from 'luci
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="flex items-center justify-between px-6 md:px-12 h-16 border-b border-neutral-200">
+      <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 md:px-12 h-14 sm:h-16 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <GraduationCap size={28} className="text-black" />
           <span className="font-bold text-xl">NexLearn</span>
@@ -26,8 +26,8 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex flex-col">
-        <section className="flex flex-col items-center justify-center flex-1 px-6 py-20 md:py-32 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl">
+        <section className="flex flex-col items-center justify-center flex-1 px-4 sm:px-6 py-16 sm:py-20 md:py-32 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight max-w-3xl">
             Система супроводу навчального процесу
           </h1>
           <p className="mt-6 text-lg md:text-xl text-neutral-600 max-w-2xl">
@@ -37,14 +37,14 @@ export default function Home() {
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white font-medium rounded-lg hover:bg-neutral-800 active:scale-[0.97] transition-all min-h-[44px]"
             >
               Розпочати
               <ArrowRight size={18} />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 px-8 py-3 border border-neutral-300 text-black font-medium rounded-lg hover:bg-neutral-50 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 border border-neutral-300 text-black font-medium rounded-lg hover:bg-neutral-50 active:scale-[0.97] transition-all min-h-[44px]"
             >
               Увійти в систему
             </Link>

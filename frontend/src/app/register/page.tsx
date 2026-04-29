@@ -53,7 +53,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-12 bg-white">
+    <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8 bg-white safe-bottom">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <GraduationCap size={40} className="text-black mb-3" />

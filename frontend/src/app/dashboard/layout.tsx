@@ -28,11 +28,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-dvh w-full overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-6 bg-neutral-50">
+        <main className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 bg-neutral-50 -webkit-overflow-scrolling-touch">
           {children}
         </main>
       </div>
