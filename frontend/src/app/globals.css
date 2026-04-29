@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+.dark .bg-white { background-color: #0a0a0a !important; }
+.dark .bg-neutral-50 { background-color: #111111 !important; }
+.dark .bg-neutral-100 { background-color: #1a1a1a !important; }
+.dark .border-neutral-200 { border-color: #2a2a2a !important; }
+.dark .border-neutral-300 { border-color: #333 !important; }
+.dark .text-neutral-500 { color: #888 !important; }
+.dark .text-neutral-400 { color: #666 !important; }
+.dark .text-neutral-700 { color: #ccc !important; }
+.dark .text-neutral-600 { color: #aaa !important; }
+.dark .text-black { color: #ededed !important; }
+.dark .bg-black { background-color: #ededed !important; color: #0a0a0a !important; }
+.dark .hover\:bg-neutral-50:hover { background-color: #1a1a1a !important; }
+.dark .hover\:bg-neutral-100:hover { background-color: #222 !important; }
+.dark .hover\:border-black:hover { border-color: #ededed !important; }
+.dark .border-black { border-color: #ededed !important; }
+.dark .hover\:bg-neutral-800:hover { background-color: #ccc !important; }
+.dark .border-neutral-100 { border-color: #1a1a1a !important; }
+.dark input, .dark textarea, .dark select {
+  background-color: #1a1a1a !important;
+  color: #ededed !important;
+  border-color: #333 !important;
+}
+.dark .ring-black { --tw-ring-color: #ededed !important; }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
