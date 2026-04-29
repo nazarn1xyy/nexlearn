@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EduPlatform — Система супроводу навчального процесу",
+  title: "NexLearn — Система супроводу навчального процесу",
   description: "Веб-орієнтована інформаційна система супроводу навчального процесу в центрах підвищення кваліфікації",
 };
 

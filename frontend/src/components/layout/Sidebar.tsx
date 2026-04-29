@@ -54,7 +54,7 @@ export default memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex items-center justify-between p-6 border-b border-neutral-200">
           <Link href="/dashboard" className="flex items-center gap-2" onClick={onClose}>
             <GraduationCap size={24} className="text-black" />
-            <span className="font-bold text-lg">EduPlatform</span>
+            <span className="font-bold text-lg">NexLearn</span>
           </Link>
           <button onClick={onClose} className="lg:hidden p-1 hover:bg-neutral-100 rounded">
             <X size={20} />

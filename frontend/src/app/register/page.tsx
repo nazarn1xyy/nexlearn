@@ -58,7 +58,7 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center mb-8">
           <GraduationCap size={40} className="text-black mb-3" />
           <h1 className="text-2xl font-bold">Реєстрація</h1>
-          <p className="text-sm text-neutral-500 mt-1">Створіть акаунт в EduPlatform</p>
+          <p className="text-sm text-neutral-500 mt-1">Створіть акаунт в NexLearn</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

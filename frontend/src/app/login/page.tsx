@@ -33,7 +33,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
           <GraduationCap size={40} className="text-black mb-3" />
           <h1 className="text-2xl font-bold">Вхід в систему</h1>
-          <p className="text-sm text-neutral-500 mt-1">EduPlatform</p>
+          <p className="text-sm text-neutral-500 mt-1">NexLearn</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

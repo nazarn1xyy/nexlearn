@@ -112,7 +112,7 @@ function generatePDF(cert: Certificate) {
   // Platform tag
   ctx.fillStyle = '#bbb';
   ctx.font = '300 14px system-ui, -apple-system, sans-serif';
-  ctx.fillText('EduPlatform  ·  Система супроводу навчального процесу', W / 2, 540);
+  ctx.fillText('NexLearn  ·  Система супроводу навчального процесу', W / 2, 540);
 
   // ─── Bottom Section ───
   // Horizontal separator

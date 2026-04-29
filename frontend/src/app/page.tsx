@@ -7,7 +7,7 @@ export default function Home() {
       <header className="flex items-center justify-between px-6 md:px-12 h-16 border-b border-neutral-200">
         <div className="flex items-center gap-2">
           <GraduationCap size={28} className="text-black" />
-          <span className="font-bold text-xl">EduPlatform</span>
+          <span className="font-bold text-xl">NexLearn</span>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -96,7 +96,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-5xl mx-auto">
           <div className="flex items-center gap-2">
             <GraduationCap size={20} className="text-neutral-400" />
-            <span className="text-sm text-neutral-500">EduPlatform 2025</span>
+            <span className="text-sm text-neutral-500">NexLearn 2025</span>
           </div>
           <p className="text-xs text-neutral-400">
             Центр підвищення кваліфікації
