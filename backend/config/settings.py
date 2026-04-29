@@ -67,7 +67,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 _db_user = os.getenv('DB_USER', '')
 _db_host = os.getenv('DB_HOST', '')
-print(f'[DB CONFIG] DB_HOST={_db_host!r} DB_USER={_db_user!r} len={len(_db_user)}')
 
 if _db_host:
     DATABASES = {
