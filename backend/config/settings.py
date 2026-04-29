@@ -66,14 +66,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 if os.getenv('DB_HOST'):
+    _dsn = (
+        f"host={os.getenv('DB_HOST')} "
+        f"port={os.getenv('DB_PORT', '5432')} "
+        f"dbname={os.getenv('DB_NAME', 'postgres')} "
+        f"user={os.getenv('DB_USER', 'postgres')} "
+        f"password={os.getenv('DB_PASSWORD', '')}"
+    )
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'postgres'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'OPTIONS': {'dsn': _dsn},
             'CONN_MAX_AGE': 600,
         }
     }
