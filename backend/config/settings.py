@@ -65,21 +65,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
-        conn_max_age=600,
-    )
-}
-
-# Fix: dj-database-url may strip project ref from Supabase pooler usernames (e.g. postgres.ref → postgres)
 _db_url = os.getenv('DATABASE_URL', '')
-if _db_url and '%2E' in _db_url or '.' in _db_url.split('@')[0].split(':')[0].split('//')[-1]:
+if _db_url and _db_url.startswith('postgres'):
     from urllib.parse import urlparse, unquote
     _parsed = urlparse(_db_url)
-    _user = unquote(_parsed.username or '')
-    if '.' in _user:
-        DATABASES['default']['USER'] = _user
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _parsed.path.lstrip('/'),
+            'USER': unquote(_parsed.username or ''),
+            'PASSWORD': unquote(_parsed.password or ''),
+            'HOST': _parsed.hostname,
+            'PORT': str(_parsed.port or 5432),
+            'CONN_MAX_AGE': 600,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_USER_MODEL = 'users.User'
 
