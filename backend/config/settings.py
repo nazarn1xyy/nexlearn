@@ -72,6 +72,15 @@ DATABASES = {
     )
 }
 
+# Fix: dj-database-url may strip project ref from Supabase pooler usernames (e.g. postgres.ref → postgres)
+_db_url = os.getenv('DATABASE_URL', '')
+if _db_url and '%2E' in _db_url or '.' in _db_url.split('@')[0].split(':')[0].split('//')[-1]:
+    from urllib.parse import urlparse, unquote
+    _parsed = urlparse(_db_url)
+    _user = unquote(_parsed.username or '')
+    if '.' in _user:
+        DATABASES['default']['USER'] = _user
+
 AUTH_USER_MODEL = 'users.User'
 
 AUTH_PASSWORD_VALIDATORS = [
