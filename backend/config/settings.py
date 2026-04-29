@@ -65,27 +65,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-_db_url = os.getenv('DATABASE_URL', '')
-if _db_url and _db_url.startswith('postgres'):
-    from urllib.parse import urlparse, unquote
-    _parsed = urlparse(_db_url)
+if os.getenv('DB_HOST'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': _parsed.path.lstrip('/'),
-            'USER': unquote(_parsed.username or ''),
-            'PASSWORD': unquote(_parsed.password or ''),
-            'HOST': _parsed.hostname,
-            'PORT': str(_parsed.port or 5432),
+            'NAME': os.getenv('DB_NAME', 'postgres'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT', '5432'),
             'CONN_MAX_AGE': 600,
         }
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+        'default': dj_database_url.config(
+            default='sqlite:///db.sqlite3',
+            conn_max_age=600,
+        )
     }
 
 AUTH_USER_MODEL = 'users.User'
