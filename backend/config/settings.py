@@ -76,6 +76,7 @@ if os.getenv('DB_HOST'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'postgres'),
             'OPTIONS': {'dsn': _dsn},
             'CONN_MAX_AGE': 600,
         }
