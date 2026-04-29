@@ -8,3 +8,4 @@ python-dotenv==1.0.1
 dj-database-url==2.3.0
 whitenoise==6.8.2
 Pillow==11.1.0
+django-ratelimit==4.1.0
