@@ -35,5 +35,4 @@ npm-debug.log*
 *.docx
 
 .agent/
-*.code-workspace
 
