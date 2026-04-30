@@ -34,5 +34,5 @@ npm-debug.log*
 # Documents
 *.docx
 
-*.agent
+.agent/
 
