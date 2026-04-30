@@ -34,7 +34,13 @@ if not User.objects.filter(username=username).exists():
     user.save()
     print(f'Superuser \"{username}\" created successfully!')
 else:
-    print(f'Superuser \"{username}\" already exists, skipping.')
+    user = User.objects.get(username=username)
+    user.set_password(password)
+    user.is_staff = True
+    user.is_superuser = True
+    user.role = 'admin'
+    user.save()
+    print(f'Superuser \"{username}\" already exists — password updated.')
 "
 
 echo "==> Build complete!"
