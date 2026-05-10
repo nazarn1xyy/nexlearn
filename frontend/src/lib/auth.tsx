@@ -36,15 +36,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
+        setUser(null);
         setLoading(false);
         return;
       }
       const { data } = await api.get('/api/auth/me/');
       setUser(data);
-    } catch {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      setUser(null);
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number } };
+      // Only clear tokens on explicit 401 (unauthorized)
+      // Do NOT clear on network errors, timeouts, CORS issues, etc.
+      if (error.response?.status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        setUser(null);
+      }
+      // On network error — keep tokens, user stays null but can retry
     } finally {
       setLoading(false);
     }

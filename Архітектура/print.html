@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexLearn — Архітектура</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  @page { margin: 1.5cm; size: A4; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    color: #1a1a1a;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+  h1 { font-size: 26px; border-bottom: 3px solid #000; padding-bottom: 8px; margin-top: 0; }
+  h2 { font-size: 20px; border-bottom: 2px solid #ccc; padding-bottom: 4px; margin-top: 36px; page-break-after: avoid; }
+  h3 { font-size: 16px; margin-top: 24px; page-break-after: avoid; }
+  p, li { font-size: 14px; }
+  ul, ol { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  pre {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  tr { page-break-inside: avoid; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+  th { background: #f0f0f0; font-weight: 600; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 32px 0; }
+  .mermaid {
+    text-align: center;
+    margin: 20px auto;
+    page-break-inside: avoid;
+    max-width: 520px;
+  }
+  .mermaid svg { max-width: 100% !important; height: auto !important; }
+  .page-break { page-break-before: always; }
+  .section-title { color: #333; }
+  strong { color: #000; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 20px 0 32px;
+  }
+  .stat-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #555;
+    margin-top: 4px;
+  }
+  .stat-card:nth-child(1) { border-color: #22d3ee; }
+  .stat-card:nth-child(1) .stat-number { color: #0891b2; }
+  .stat-card:nth-child(2) { border-color: #a78bfa; }
+  .stat-card:nth-child(2) .stat-number { color: #7c3aed; }
+  .stat-card:nth-child(3) { border-color: #34d399; }
+  .stat-card:nth-child(3) .stat-number { color: #059669; }
+  .stat-card:nth-child(4) { border-color: #f472b6; }
+  .stat-card:nth-child(4) .stat-number { color: #db2777; }
+  .stat-card:nth-child(5) { border-color: #fbbf24; }
+  .stat-card:nth-child(5) .stat-number { color: #d97706; }
+  .stat-card:nth-child(6) { border-color: #ef4444; }
+  .stat-card:nth-child(6) .stat-number { color: #dc2626; }
+  .stat-card:nth-child(7) { border-color: #60a5fa; }
+  .stat-card:nth-child(7) .stat-number { color: #2563eb; }
+  .stat-card:nth-child(8) { border-color: #a3a3a3; }
+  .stat-card:nth-child(8) .stat-number { color: #525252; }
+
+  @media print {
+    body { font-size: 12px; padding: 0; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 17px; }
+    h3 { font-size: 14px; }
+    pre { font-size: 11px; }
+    table { font-size: 11px; }
+    .no-print { display: none; }
+    .stat-number { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 1: АРХІТЕКТУРА -->
+<!-- ============================================================ -->
+
+<h1>NexLearn — Повна структура проекту</h1>
+
+<h2>Проект в числах</h2>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">3</div>
+    <div class="stat-label">Ролі користувачів</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">21</div>
+    <div class="stat-label">API-ендпоінтів</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">10</div>
+    <div class="stat-label">Моделей даних</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">4</div>
+    <div class="stat-label">Django-додатки</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">9</div>
+    <div class="stat-label">Сторінок фронтенду</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">3</div>
+    <div class="stat-label">Зовнішні сервіси</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">2</div>
+    <div class="stat-label">Мови (Python + TS)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">0 ₴</div>
+    <div class="stat-label">Вартість хостингу</div>
+  </div>
+</div>
+
+<h2>Загальна ідея</h2>
+<p>NexLearn — <strong>веб-орієнтована інформаційна система супроводу навчального процесу</strong> для центрів підвищення кваліфікації. Система складається з <strong>трьох частин</strong>, які працюють разом:</p>
+<ol>
+  <li><strong>Frontend</strong> — Next.js-додаток на <code>nexlearn.space</code>, де викладачі створюють курси і тести, а слухачі вчаться і складають іспити</li>
+  <li><strong>Backend API</strong> — Django REST Framework сервер, який зберігає всі дані, перевіряє права і генерує сертифікати</li>
+  <li><strong>База даних PostgreSQL</strong> — у хмарі Supabase, зберігає користувачів, курси, тести, результати</li>
+</ol>
+<p>Усі три частини спілкуються між собою через <strong>REST API</strong> з JWT-автентифікацією.</p>
+
+<hr>
+
+<h2>Де що живе</h2>
+<pre><code>Frontend (Vercel)                       Backend (Railway / Render)
+─────────────────                       ──────────────────────────
+nexlearn.space                          Django + DRF
+├── src/                                ├── config/
+│   ├── app/                            │   ├── settings.py    ← налаштування
+│   │   ├── page.tsx       ← головна   │   ├── urls.py         ← маршрути
+│   │   ├── login/         ← вхід      │   └── wsgi.py         ← gunicorn
+│   │   ├── register/      ← реєстрація├── apps/
+│   │   └── dashboard/                 │   ├── users/          ← акаунти, JWT
+│   │       ├── courses/   ← курси     │   │   ├── models.py   ← User з ролями
+│   │       ├── tests/     ← тести     │   │   ├── views.py
+│   │       ├── certificates/          │   │   └── urls.py
+│   │       ├── profile/   ← профіль   │   ├── courses/        ← курси
+│   │       └── users/     ← адмін     │   │   ├── models.py   ← Course, Material
+│   ├── components/                    │   │   └── views.py    ← + comments, rate
+│   │   ├── ui/            ← кнопки   │   ├── tests_module/   ← тестування
+│   │   └── layout/        ← header   │   │   ├── models.py   ← Test, Question
+│   ├── lib/                          │   │   └── views.py    ← + submit, results
+│   │   ├── api.ts         ← axios    │   └── certificates/   ← сертифікати
+│   │   └── auth.ts        ← JWT      │       ├── models.py   ← UUID-номери
+│   └── types/             ← TS-типи  │       └── views.py
+├── public/                            ├── manage.py
+├── next.config.ts         ← CSP       ├── requirements.txt
+└── vercel.json            ← деплой    ├── Procfile           ← gunicorn
+                                       └── build.sh           ← міграції + admin
+
+Database (Supabase)
+───────────────────
+PostgreSQL
+├── users_user            ← кастомна модель з role
+├── courses_course        ← курси
+├── courses_coursematerial← файли курсу
+├── courses_courseenrollment ← записи
+├── courses_coursecomment ← коментарі
+├── courses_courserating  ← оцінки
+├── tests_module_test     ← тести
+├── tests_module_testquestion ← запитання
+├── tests_module_testresult ← результати
+└── certificates_certificate ← сертифікати з UUID</code></pre>
+
+<hr>
+
+<h2>Як працює фронтенд (nexlearn.space)</h2>
+
+<h3>Стек технологій</h3>
+<ul>
+  <li><strong>Next.js 16</strong> — React-фреймворк з App Router (нова система маршрутизації)</li>
+  <li><strong>React 19</strong> — UI-бібліотека</li>
+  <li><strong>TypeScript</strong> — типізація замість «голого» JavaScript</li>
+  <li><strong>Tailwind CSS 4</strong> — стилі через CSS-класи</li>
+  <li><strong>Axios</strong> — HTTP-клієнт для запитів до Django API</li>
+  <li><strong>jsPDF</strong> — генерація PDF-сертифікатів у браузері</li>
+  <li><strong>Lucide React</strong> — набір SVG-іконок</li>
+</ul>
+
+<h3>Відкриття сторінки</h3>
+<ol>
+  <li>Користувач заходить на <code>nexlearn.space</code></li>
+  <li>Vercel CDN віддає згенеровану Next.js сторінку (SSR / SSG)</li>
+  <li>Browser завантажує React-бандл і гідрує сторінку</li>
+  <li><code>api.ts</code> створює axios-клієнт з base URL = <code>NEXT_PUBLIC_API_URL</code></li>
+  <li>Якщо в <code>localStorage</code> є <code>access_token</code> — він додається до заголовка Authorization</li>
+  <li>Якщо токен прострочений (401) — автоматичний refresh через <code>/api/auth/refresh/</code></li>
+</ol>
+
+<h3>Сторінки фронтенду</h3>
+<table>
+  <tr><th>URL</th><th>Доступ</th><th>Що робить</th></tr>
+  <tr><td><code>/</code></td><td>Усі</td><td>Лендінг — опис системи, кнопки «Вхід» і «Реєстрація»</td></tr>
+  <tr><td><code>/login</code></td><td>Усі</td><td>Форма входу: username + пароль → JWT</td></tr>
+  <tr><td><code>/register</code></td><td>Усі</td><td>Реєстрація з вибором ролі (тільки teacher / student)</td></tr>
+  <tr><td><code>/dashboard</code></td><td>Авторизовані</td><td>Особистий кабінет: статистика, останні курси, тести</td></tr>
+  <tr><td><code>/dashboard/courses</code></td><td>Авторизовані</td><td>Каталог курсів: пошук, фільтри, рейтинги</td></tr>
+  <tr><td><code>/dashboard/courses/[id]</code></td><td>Авторизовані</td><td>Деталі курсу: матеріали, коментарі, кнопка «Записатися»</td></tr>
+  <tr><td><code>/dashboard/tests</code></td><td>Авторизовані</td><td>Список тестів за курсами</td></tr>
+  <tr><td><code>/dashboard/tests/[id]</code></td><td>Авторизовані</td><td>Проходження тесту: запитання + варіанти + таймер</td></tr>
+  <tr><td><code>/dashboard/certificates</code></td><td>Авторизовані</td><td>Мої сертифікати з можливістю завантажити PDF</td></tr>
+  <tr><td><code>/dashboard/profile</code></td><td>Авторизовані</td><td>Редагування профілю: ім'я, телефон, аватар, біо</td></tr>
+  <tr><td><code>/dashboard/users</code></td><td>Тільки адмін</td><td>Управління користувачами: змінити роль</td></tr>
+</table>
+
+<h3>Як фронтенд робить запити до бекенду</h3>
+<pre><code>// src/lib/api.ts — axios-клієнт з інтерсепторами
+
+api.interceptors.request.use((config) =&gt; {
+  const token = localStorage.getItem('access_token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) =&gt; response,
+  async (error) =&gt; {
+    // 401? → автоматичний refresh
+    if (error.response?.status === 401 &amp;&amp; !originalRequest._retry) {
+      const refresh = localStorage.getItem('refresh_token');
+      const { data } = await axios.post('/api/auth/refresh/', { refresh });
+      localStorage.setItem('access_token', data.access);
+      // Повторюємо оригінальний запит з новим токеном
+      return api(originalRequest);
+    }
+    return Promise.reject(error);
+  }
+);</code></pre>
+
+<h3>Зберігання токенів</h3>
+<ul>
+  <li><strong>access_token</strong> — короткий (60 хв), зберігається в <code>localStorage</code></li>
+  <li><strong>refresh_token</strong> — довгий (7 днів), теж в <code>localStorage</code>, з ротацією</li>
+  <li>При логауті — обидва видаляються</li>
+  <li>При rotation — старий refresh додається в <code>token_blacklist</code> (Django)</li>
+</ul>
+
+<h3>Безпекові заголовки фронтенду (next.config.ts)</h3>
+<table>
+  <tr><th>Заголовок</th><th>Що робить</th></tr>
+  <tr><td><code>X-Content-Type-Options: nosniff</code></td><td>Не дозволяє браузеру «вгадувати» тип файлу</td></tr>
+  <tr><td><code>X-Frame-Options: DENY</code></td><td>Заборона вбудовування в iframe (захист від clickjacking)</td></tr>
+  <tr><td><code>Content-Security-Policy</code></td><td>Дозволяє завантажувати скрипти/стилі/картинки тільки з нашого API</td></tr>
+  <tr><td><code>Strict-Transport-Security</code></td><td>Браузер завжди використовує HTTPS (HSTS, 1 рік)</td></tr>
+  <tr><td><code>Referrer-Policy</code></td><td>Не передає повний URL чужим сайтам</td></tr>
+  <tr><td><code>Permissions-Policy</code></td><td>Заборона доступу до камери, мікрофона, геолокації</td></tr>
+</table>
+
+<hr>
+
+<h2>Як працює бекенд (Django + DRF)</h2>
+
+<h3>Стек технологій</h3>
+<ul>
+  <li><strong>Python 3.12</strong> — мова</li>
+  <li><strong>Django 6</strong> — веб-фреймворк</li>
+  <li><strong>Django REST Framework 3.15</strong> — REST API</li>
+  <li><strong>djangorestframework-simplejwt 5.4</strong> — JWT-автентифікація</li>
+  <li><strong>django-cors-headers</strong> — CORS</li>
+  <li><strong>django-ratelimit</strong> — обмеження запитів</li>
+  <li><strong>psycopg 3.3</strong> — драйвер PostgreSQL</li>
+  <li><strong>Pillow</strong> — обробка картинок (аватари)</li>
+  <li><strong>WhiteNoise</strong> — віддача статики через gunicorn</li>
+  <li><strong>gunicorn</strong> — WSGI-сервер</li>
+</ul>
+
+<h3>Структура додатків (Django apps)</h3>
+<pre><code>apps/
+├── users/             ← користувачі і автентифікація
+│   ├── models.py      ← User (AbstractUser + role + phone + bio + avatar)
+│   ├── serializers.py ← Register, User, ChangeRole
+│   ├── views.py       ← Register, Me, UserList, ChangeRole
+│   ├── urls.py        ← /api/auth/* (з rate-limit)
+│   └── urls_admin.py  ← /api/users/* (тільки адмін)
+│
+├── courses/           ← курси і пов'язане
+│   ├── models.py      ← Course, CourseMaterial, CourseEnrollment,
+│   │                    CourseComment, CourseRating
+│   ├── serializers.py ← List, Detail, Create, Material, Comment, Rating
+│   ├── views.py       ← CRUD + enroll + progress + rate
+│   └── urls.py        ← /api/courses/*
+│
+├── tests_module/      ← тести
+│   ├── models.py      ← Test, TestQuestion, TestResult
+│   ├── serializers.py ← з + без correct_answer (для студентів)
+│   ├── views.py       ← Submit (підрахунок балів + видача сертифіката)
+│   └── urls.py        ← /api/tests/*
+│
+└── certificates/      ← сертифікати
+    ├── models.py      ← Certificate з UUID-номером
+    ├── serializers.py
+    ├── views.py       ← List, Detail (тільки чужі бачать адміни)
+    └── urls.py        ← /api/certificates/*</code></pre>
+
+<h3>Модель User</h3>
+<pre><code>class User(AbstractUser):
+    class Role(TextChoices):
+        ADMIN = 'admin'        # повний доступ
+        TEACHER = 'teacher'    # створює курси і тести
+        STUDENT = 'student'    # вчиться і складає тести
+
+    role = CharField(choices=Role.choices, default=STUDENT)
+    phone = CharField(max_length=20, blank=True)
+    bio = TextField(blank=True)
+    avatar = ImageField(upload_to='avatars/', validators=[file&lt;=2MB])
+
+    @property
+    def is_admin(self): return self.role == 'admin'
+    @property
+    def is_teacher(self): return self.role == 'teacher'
+    @property
+    def is_student(self): return self.role == 'student'</code></pre>
+
+<h3>Зв'язки моделей</h3>
+<pre><code>User ──one-to-many──&gt; Course (через teacher)
+User ──many-to-many──&gt; Course (через CourseEnrollment)
+User ──many-to-many──&gt; Course (через CourseRating: 1-5 ★)
+User ──one-to-many──&gt; CourseComment
+
+Course ──one-to-many──&gt; CourseMaterial (файли до 10MB)
+Course ──one-to-many──&gt; Test
+Course ──one-to-many──&gt; Certificate
+
+Test ──one-to-many──&gt; TestQuestion (з options + correct_answer)
+Test ──one-to-many──&gt; TestResult (бал + passed)
+
+Certificate (UUID-номер) ──unique──&gt; (student, course)</code></pre>
+
+<hr>
+
+<h2>Ролі і права</h2>
+
+<table>
+  <tr>
+    <th style="width:18%">Дія</th>
+    <th style="width:27%">👨‍💼 Адмін</th>
+    <th style="width:27%">👨‍🏫 Викладач</th>
+    <th style="width:27%">🎓 Слухач</th>
+  </tr>
+  <tr>
+    <td><strong>Реєстрація</strong></td>
+    <td>Тільки через Django admin</td>
+    <td>✓ через сайт</td>
+    <td>✓ через сайт</td>
+  </tr>
+  <tr>
+    <td><strong>Курси</strong></td>
+    <td>Бачить усі (включаючи чернетки), редагує будь-який</td>
+    <td>Створює свої, редагує тільки свої, бачить чернетки</td>
+    <td>Бачить тільки опубліковані</td>
+  </tr>
+  <tr>
+    <td><strong>Матеріали курсу</strong></td>
+    <td>Завантажує до будь-якого курсу</td>
+    <td>Тільки до своїх курсів</td>
+    <td>Завантажує (читає) — після запису на курс</td>
+  </tr>
+  <tr>
+    <td><strong>Тести</strong></td>
+    <td>Створює і редагує всі</td>
+    <td>Створює тести до своїх курсів</td>
+    <td>Складає тести курсів, на які записаний</td>
+  </tr>
+  <tr>
+    <td><strong>Спроби тесту</strong></td>
+    <td>Без обмежень</td>
+    <td>Без обмежень</td>
+    <td>Максимум 3 спроби на тест</td>
+  </tr>
+  <tr>
+    <td><strong>Результати тестів</strong></td>
+    <td>Бачить усі</td>
+    <td>Бачить результати своїх тестів</td>
+    <td>Бачить тільки свої результати</td>
+  </tr>
+  <tr>
+    <td><strong>Експорт результатів</strong></td>
+    <td>✓ CSV з усіма даними</td>
+    <td>✓ CSV для своїх тестів</td>
+    <td>✗</td>
+  </tr>
+  <tr>
+    <td><strong>Сертифікати</strong></td>
+    <td>Бачить усі видані</td>
+    <td>Бачить видані за свої курси</td>
+    <td>Бачить тільки свої</td>
+  </tr>
+  <tr>
+    <td><strong>Зміна ролей</strong></td>
+    <td>✓ через <code>/dashboard/users</code></td>
+    <td>✗</td>
+    <td>✗</td>
+  </tr>
+  <tr>
+    <td><strong>Коментарі і оцінки</strong></td>
+    <td>Будь-який курс</td>
+    <td>Будь-який курс</td>
+    <td>Будь-який курс</td>
+  </tr>
+</table>
+
+<h3>Як перевіряється роль</h3>
+<pre><code># Backend — DRF Permission classes
+class IsTeacherOrAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role in ('teacher', 'admin')
+
+class IsOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.teacher == request.user or request.user.is_admin
+
+class IsAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.is_admin</code></pre>
+
+<hr>
+
+<h2>API-ендпоінти</h2>
+
+<h3>Автентифікація (<code>/api/auth/</code>)</h3>
+<table>
+  <tr><th>Ендпоінт</th><th>Метод</th><th>Доступ</th><th>Що робить</th></tr>
+  <tr><td><code>/api/auth/register/</code></td><td>POST</td><td>Усі (3/хв per IP)</td><td>Реєстрація: username, email, password, role (teacher/student)</td></tr>
+  <tr><td><code>/api/auth/login/</code></td><td>POST</td><td>Усі (5/хв per IP)</td><td>Вхід: username + password → access_token + refresh_token</td></tr>
+  <tr><td><code>/api/auth/refresh/</code></td><td>POST</td><td>Усі</td><td>Оновити access за допомогою refresh (з ротацією)</td></tr>
+  <tr><td><code>/api/auth/me/</code></td><td>GET</td><td>Авторизовані</td><td>Дані поточного користувача</td></tr>
+  <tr><td><code>/api/auth/me/</code></td><td>PATCH</td><td>Авторизовані</td><td>Редагувати профіль (ім'я, телефон, біо, аватар)</td></tr>
+</table>
+
+<h3>Користувачі (<code>/api/users/</code>) — тільки адмін</h3>
+<table>
+  <tr><th>Ендпоінт</th><th>Метод</th><th>Що робить</th></tr>
+  <tr><td><code>/api/users/</code></td><td>GET</td><td>Список усіх користувачів з пагінацією</td></tr>
+  <tr><td><code>/api/users/{id}/role/</code></td><td>PATCH</td><td>Змінити роль (admin / teacher / student)</td></tr>
+</table>
+
+<h3>Курси (<code>/api/courses/</code>)</h3>
+<table>
+  <tr><th>Ендпоінт</th><th>Метод</th><th>Доступ</th><th>Що робить</th></tr>
+  <tr><td><code>/api/courses/</code></td><td>GET</td><td>Усі</td><td>Список курсів (студенти бачать тільки published)</td></tr>
+  <tr><td><code>/api/courses/</code></td><td>POST</td><td>Викладач/Адмін</td><td>Створити курс (статус draft за замовчуванням)</td></tr>
+  <tr><td><code>/api/courses/{id}/</code></td><td>GET</td><td>Усі</td><td>Деталі курсу + матеріали + рейтинг</td></tr>
+  <tr><td><code>/api/courses/{id}/</code></td><td>PUT/PATCH</td><td>Власник/Адмін</td><td>Редагувати курс</td></tr>
+  <tr><td><code>/api/courses/{id}/</code></td><td>DELETE</td><td>Власник/Адмін</td><td>Видалити курс</td></tr>
+  <tr><td><code>/api/courses/{id}/enroll/</code></td><td>POST</td><td>Авторизовані</td><td>Записатися на курс</td></tr>
+  <tr><td><code>/api/courses/{id}/materials/</code></td><td>GET</td><td>Авторизовані</td><td>Список матеріалів</td></tr>
+  <tr><td><code>/api/courses/{id}/materials/</code></td><td>POST</td><td>Викладач (свій)</td><td>Завантажити файл (≤10MB)</td></tr>
+  <tr><td><code>/api/courses/{id}/progress/</code></td><td>GET</td><td>Авторизовані</td><td>% пройдених тестів + чи є сертифікат</td></tr>
+  <tr><td><code>/api/courses/{id}/comments/</code></td><td>GET</td><td>Авторизовані</td><td>Список коментарів</td></tr>
+  <tr><td><code>/api/courses/{id}/comments/</code></td><td>POST</td><td>Авторизовані</td><td>Додати коментар</td></tr>
+  <tr><td><code>/api/courses/{id}/rate/</code></td><td>GET</td><td>Авторизовані</td><td>Моя оцінка курсу</td></tr>
+  <tr><td><code>/api/courses/{id}/rate/</code></td><td>POST</td><td>Авторизовані</td><td>Поставити оцінку 1-5 ★</td></tr>
+</table>
+
+<h3>Тести (<code>/api/tests/</code>)</h3>
+<table>
+  <tr><th>Ендпоінт</th><th>Метод</th><th>Доступ</th><th>Що робить</th></tr>
+  <tr><td><code>/api/tests/?course={id}</code></td><td>GET</td><td>Авторизовані</td><td>Список тестів за курсом</td></tr>
+  <tr><td><code>/api/tests/</code></td><td>POST</td><td>Викладач/Адмін</td><td>Створити тест із запитаннями</td></tr>
+  <tr><td><code>/api/tests/{id}/</code></td><td>GET</td><td>Авторизовані</td><td>Деталі тесту (студенти не бачать correct_answer)</td></tr>
+  <tr><td><code>/api/tests/{id}/submit/</code></td><td>POST</td><td>Записані на курс</td><td>Здати тест: <code>{"answers": [0, 2, 1]}</code> → бал + сертифікат</td></tr>
+  <tr><td><code>/api/tests/{id}/results/</code></td><td>GET</td><td>Авторизовані</td><td>Список результатів тесту</td></tr>
+  <tr><td><code>/api/tests/{id}/export/</code></td><td>GET</td><td>Викладач/Адмін</td><td>Експорт результатів у CSV</td></tr>
+  <tr><td><code>/api/tests/my-results/</code></td><td>GET</td><td>Авторизовані</td><td>Підсумок: найкращий бал + кількість спроб для кожного тесту</td></tr>
+</table>
+
+<h3>Сертифікати (<code>/api/certificates/</code>)</h3>
+<table>
+  <tr><th>Ендпоінт</th><th>Метод</th><th>Доступ</th><th>Що робить</th></tr>
+  <tr><td><code>/api/certificates/</code></td><td>GET</td><td>Авторизовані</td><td>Список (студенти бачать тільки свої)</td></tr>
+  <tr><td><code>/api/certificates/{id}/</code></td><td>GET</td><td>Авторизовані</td><td>Деталі сертифіката для рендерингу PDF</td></tr>
+</table>
+
+<hr>
+
+<h2>Тестування — як працює</h2>
+
+<h3>Створення тесту викладачем</h3>
+<pre><code>POST /api/tests/
+{
+  "title": "Тест 1: Основи Python",
+  "description": "Перевірка базових знань",
+  "course": 5,
+  "passing_score": 70,
+  "time_limit": 30,           // хвилини, 0 = без обмежень
+  "questions": [
+    {
+      "question_text": "Що таке list comprehension?",
+      "options": ["Цикл", "Скорочений запис створення списку",
+                  "Сортування", "Фільтрація"],
+      "correct_answer": 1,    // індекс правильної відповіді
+      "order": 0
+    },
+    ...
+  ]
+}</code></pre>
+
+<h3>Проходження тесту слухачем</h3>
+<ol>
+  <li>Слухач відкриває <code>/dashboard/tests/{id}</code></li>
+  <li>Frontend робить <code>GET /api/tests/{id}/</code> — без поля <code>correct_answer</code></li>
+  <li>Слухач відповідає, фронтенд накопичує масив індексів: <code>[1, 0, 2, 1, ...]</code></li>
+  <li><code>POST /api/tests/{id}/submit/</code> з масивом</li>
+  <li>Backend перевіряє:
+    <ul>
+      <li>чи слухач записаний на курс (інакше 403)</li>
+      <li>чи не вичерпав 3 спроби (інакше 400)</li>
+      <li>довжина масиву = кількість запитань</li>
+    </ul>
+  </li>
+  <li>Підрахунок: <code>score = (правильних / всього) × 100</code></li>
+  <li>Якщо <code>score &gt;= passing_score</code> → <code>passed = true</code></li>
+  <li>Якщо <code>passed</code> і ще немає сертифіката → створює <code>Certificate</code> з UUID-номером</li>
+  <li>Зберігає <code>TestResult</code> з масивом відповідей (для статистики)</li>
+  <li>Повертає результат → фронтенд показує бал + повідомлення</li>
+</ol>
+
+<h3>Антишахрайство</h3>
+<ul>
+  <li><strong>Студенти не бачать correct_answer</strong> — окремий <code>TestStudentDetailSerializer</code></li>
+  <li><strong>Перевірка enrollment</strong> — не записаний на курс → не може здати тест</li>
+  <li><strong>Ліміт 3 спроби</strong> — після цього 400 Bad Request</li>
+  <li><strong>Перевірка кількості відповідей</strong> — неможливо здати «половину» тесту</li>
+  <li><strong>JWT з коротким TTL</strong> — 60 хвилин для access (гарантовано не застаріє під час тесту)</li>
+</ul>
+
+<hr>
+
+<h2>Сертифікати — як працює</h2>
+
+<h3>Видача сертифіката</h3>
+<p>Сертифікат видається <strong>автоматично</strong> при першому успішному проходженні тесту курсу:</p>
+<pre><code># tests_module/views.py — SubmitTestView
+if passed:
+    Certificate.objects.get_or_create(
+        student=request.user,
+        course=test.course,
+    )</code></pre>
+<p><code>get_or_create</code> = якщо вже є сертифікат — нічого не робить (через <code>unique_together</code>).</p>
+
+<h3>Структура сертифіката</h3>
+<pre><code>Certificate
+├── student (FK → User)
+├── course (FK → Course)
+├── certificate_number (UUID, autogen)
+└── issued_at (datetime)
+
+unique_together: (student, course)
+ordering: -issued_at (свіжі вгорі)</code></pre>
+
+<h3>Генерація PDF на фронтенді</h3>
+<p>PDF генерується <strong>в браузері</strong> через <code>jsPDF</code>:</p>
+<ol>
+  <li>Слухач натискає «Завантажити PDF» на <code>/dashboard/certificates</code></li>
+  <li><code>jsPDF</code> створює A4-сторінку</li>
+  <li>Малює рамку, логотип, текст:
+    <ul>
+      <li>Видано: <code>{first_name} {last_name}</code></li>
+      <li>За курс: <code>{course.title}</code></li>
+      <li>Викладач: <code>{teacher.get_full_name}</code></li>
+      <li>Номер: <code>{certificate_number}</code> (UUID)</li>
+      <li>Дата: <code>{issued_at}</code></li>
+    </ul>
+  </li>
+  <li>Зберігає як <code>certificate-{uuid}.pdf</code> на пристрій</li>
+</ol>
+<p>Перевага: бекенд не витрачає CPU на рендеринг PDF, не потрібен Pillow для шрифтів і т.д.</p>
+
+<hr>
+
+<h2>Як зв'язані фронтенд і бекенд</h2>
+<pre><code>                 nexlearn.space (Vercel)
+                          │
+                          ▼
+              Next.js (React, TypeScript)
+                          │
+                          │ axios (з JWT в Authorization)
+                          ▼
+                ┌─────────────────────┐
+                │   CORS перевірка    │
+                └─────────┬───────────┘
+                          ▼
+              Django REST Framework
+              (Railway / Render hosting)
+                          │
+                  ┌───────┼───────┐
+                  ▼       ▼       ▼
+                JWT    Permissions  Serializers
+              (Bearer) (IsAdmin     (валідація
+                       IsTeacher)    JSON)
+                          │
+                          ▼
+                ┌─────────────────────┐
+                │   Django ORM        │
+                └─────────┬───────────┘
+                          ▼
+                 PostgreSQL (Supabase)
+                          │
+                          ▼
+                  Збережені дані</code></pre>
+<ol>
+  <li><strong>Окремі домени</strong>: фронт на Vercel, бек на Railway — спілкування через CORS</li>
+  <li><strong>Stateless backend</strong>: усі запити містять JWT, сесій немає</li>
+  <li><strong>JSON-first</strong>: усі запити і відповіді у форматі JSON</li>
+  <li><strong>Multipart для файлів</strong>: при завантаженні аватара або матеріалу курсу</li>
+</ol>
+
+<hr>
+
+<h2>Зберігання файлів</h2>
+
+<h3>Що зберігається</h3>
+<table>
+  <tr><th>Тип</th><th>Де</th><th>Ліміт</th><th>Приклад</th></tr>
+  <tr><td>Аватари юзерів</td><td><code>media/avatars/</code></td><td>2 MB</td><td>JPG, PNG</td></tr>
+  <tr><td>Матеріали курсів</td><td><code>media/materials/</code></td><td>10 MB</td><td>PDF, DOCX, ZIP, MP4</td></tr>
+</table>
+
+<h3>Де реально лежать файли</h3>
+<ul>
+  <li><strong>Локальна розробка</strong>: <code>backend/media/</code> на диску</li>
+  <li><strong>Production (Railway)</strong>: ефемерний диск контейнера — при рестарті файли зникнуть</li>
+  <li><strong>Рекомендація</strong>: для продакшену перейти на <strong>S3</strong> / <strong>Cloudinary</strong> / <strong>Supabase Storage</strong> через <code>django-storages</code></li>
+</ul>
+
+<h3>Валідація розміру файлу</h3>
+<pre><code># courses/models.py
+def validate_file_size_10mb(value):
+    if value.size &gt; 10 * 1024 * 1024:
+        raise ValidationError('Максимальний розмір файлу — 10MB.')
+
+class CourseMaterial(models.Model):
+    file = FileField(upload_to='materials/',
+                     validators=[validate_file_size_10mb])</code></pre>
+
+<hr>
+
+<h2>Безпека</h2>
+
+<h3>Frontend</h3>
+<ul>
+  <li><strong>HTTPS only</strong> — Vercel автоматично</li>
+  <li><strong>CSP</strong> — заборона <code>frame-ancestors</code>, дозвіл скриптів тільки з <code>self</code></li>
+  <li><strong>HSTS</strong> — браузер примусово використовує HTTPS на 1 рік</li>
+  <li><strong>X-Frame-Options: DENY</strong> — захист від clickjacking</li>
+  <li><strong>Permissions-Policy</strong> — заборона камери / мікрофона / геолокації</li>
+  <li><strong>Token storage в localStorage</strong> — простий обмін, але вразливо до XSS (для бойового критичного — варто перейти на httpOnly cookies)</li>
+</ul>
+
+<h3>Backend</h3>
+<ul>
+  <li><strong>JWT з ротацією</strong>: access 60 хв, refresh 7 днів, <code>BLACKLIST_AFTER_ROTATION=True</code></li>
+  <li><strong>Rate-limit</strong>: <code>login = 5/хв per IP</code>, <code>register = 3/хв per IP</code></li>
+  <li><strong>Валідація паролів Django</strong>: min 8 символів, заборона популярних, заборона числових</li>
+  <li><strong>Валідація реєстрації</strong>: неможливо створити admin через <code>/api/auth/register/</code></li>
+  <li><strong>CORS allowlist</strong>: тільки <code>nexlearn.space</code> (через <code>CORS_ALLOWED_ORIGINS</code>)</li>
+  <li><strong>CSRF</strong>: відключено для API (JWT-only), увімкнено для Django admin</li>
+  <li><strong>Хешування паролів</strong>: PBKDF2-SHA256 (Django default, сотні тисяч ітерацій)</li>
+  <li><strong>Секретний URL адмінки</strong>: <code>/mgmt-panel-x9k2/</code> замість стандартного <code>/admin/</code></li>
+  <li><strong>SQL Injection</strong>: захищено через Django ORM (параметризовані запити)</li>
+  <li><strong>Permissions per endpoint</strong>: кожен view має свою <code>permission_classes</code></li>
+</ul>
+
+<h3>Database (Supabase)</h3>
+<ul>
+  <li><strong>SSL connection</strong> — обов'язково</li>
+  <li><strong>Row Level Security</strong> — Supabase підтримує (опціонально, дублює Django)</li>
+  <li><strong>Бекапи</strong> — Supabase робить автоматично (на безкоштовному плані 7 днів)</li>
+  <li><strong>Connection pooling</strong> — через <code>conn_max_age=600</code> у Django</li>
+</ul>
+
+<hr>
+
+<h2>Потоки даних: Повний цикл</h2>
+
+<h3>Реєстрація і вхід студента</h3>
+<pre><code>Frontend                          Backend                       Supabase
+────────                          ───────                       ────────
+1. /register form
+   POST /api/auth/register/  →    rate-limit перевірка
+                                  validate password match
+                                  validate role != 'admin'
+                                  set_password (PBKDF2)    →    INSERT users_user
+                                  return UserSerializer
+2. /login form
+   POST /api/auth/login/     →    rate-limit перевірка
+                                  authenticate user
+                                  generate access + refresh
+                              ←   { access, refresh }
+3. localStorage.setItem(...)
+4. Запити з заголовком
+   Authorization: Bearer ...  →   JWTAuthentication
+                                  parse token, verify signature
+                                  set request.user
+                                  permission_classes check
+5. Якщо 401:
+   POST /api/auth/refresh/   →    verify refresh token
+                                  blacklist старий refresh   →   INSERT token_blacklist
+                                  generate new pair
+                              ←   { access, refresh }</code></pre>
+
+<h3>Викладач створює курс і тест</h3>
+<pre><code>1. POST /api/courses/                      → IsTeacherOrAdmin?
+   { title, description, status='draft' }    teacher = request.user
+                                              INSERT courses_course
+                                          ← { id: 5, ... }
+
+2. POST /api/courses/5/materials/         → IsOwnerOrAdmin?
+   FormData: file=lecture.pdf                перевірка size &lt;= 10MB
+                                              FileField → media/materials/
+                                              INSERT courses_coursematerial
+                                          ← { id, file_url, ... }
+
+3. PATCH /api/courses/5/                  → status='published'
+                                          ← оновлений курс
+
+4. POST /api/tests/                       → IsTeacherOrAdmin?
+   { course: 5, title, questions: [...] }   transaction:
+                                                INSERT tests_module_test
+                                                INSERT tests_module_testquestion (×N)
+                                          ← { id, ... }</code></pre>
+
+<h3>Студент проходить тест → отримує сертифікат</h3>
+<pre><code>1. GET /api/courses/5/                   → курс опубліковано? → так
+                                            return CourseDetailSerializer
+
+2. POST /api/courses/5/enroll/           → CourseEnrollment.get_or_create
+                                            INSERT courses_courseenrollment
+                                          ← { enrollment }
+
+3. GET /api/tests/?course=5              → список тестів курсу
+
+4. GET /api/tests/3/                     → TestStudentDetailSerializer
+                                            (без correct_answer!)
+                                          ← { questions: [...] }
+
+5. POST /api/tests/3/submit/             → enrolled? → так
+   { answers: [1, 2, 0, 3, 1] }             attempts &lt; 3? → так
+                                            for q, a in zip(questions, answers):
+                                                if a == q.correct_answer: correct++
+                                            score = correct/total * 100
+                                            passed = score &gt;= passing_score
+                                            INSERT tests_module_testresult
+                                            if passed:
+                                                Certificate.get_or_create
+                                                INSERT certificates_certificate
+                                                  (з UUID)
+                                          ← { score: 85, passed: true }
+
+6. GET /api/certificates/                 → filter(student=user)
+                                          ← список сертифікатів
+
+7. jsPDF.save() (на фронтенді)            → PDF на пристрій студента</code></pre>
+
+<hr>
+
+<h2>Зовнішні сервіси</h2>
+<table>
+  <tr><th>Сервіс</th><th>Для чого</th><th>Безкоштовний план</th></tr>
+  <tr><td><strong>Vercel</strong></td><td>Хостинг Next.js фронтенду + CDN</td><td>Hobby (100 GB трафіку, безлім деплоїв)</td></tr>
+  <tr><td><strong>Railway / Render</strong></td><td>Хостинг Django бекенду (gunicorn)</td><td>Render Free (750 год/міс), Railway $5 кредит</td></tr>
+  <tr><td><strong>Supabase</strong></td><td>PostgreSQL + Auth + Storage + Realtime</td><td>500 MB БД, 1 GB storage, 50K активних юзерів/міс</td></tr>
+  <tr><td><strong>GitHub</strong></td><td>Зберігання коду + автодеплой</td><td>Безлімітні приватні репо</td></tr>
+</table>
+
+<hr>
+
+<h2>Змінні середовища (ENV)</h2>
+
+<h3>Backend (.env)</h3>
+<table>
+  <tr><th>Змінна</th><th>Що це</th><th>Приклад</th></tr>
+  <tr><td><code>SECRET_KEY</code></td><td>Криптографічний ключ Django</td><td><code>django-insecure-...</code></td></tr>
+  <tr><td><code>DEBUG</code></td><td>Режим розробки (на проді = False)</td><td><code>False</code></td></tr>
+  <tr><td><code>DATABASE_URL</code></td><td>Connection string PostgreSQL</td><td><code>postgresql://user:pass@host:5432/db</code></td></tr>
+  <tr><td><code>ALLOWED_HOSTS</code></td><td>Домени, з яких приймати запити</td><td><code>nexlearn.up.railway.app</code></td></tr>
+  <tr><td><code>CORS_ALLOWED_ORIGINS</code></td><td>Дозволені origin для CORS</td><td><code>https://nexlearn.space</code></td></tr>
+  <tr><td><code>DJANGO_SUPERUSER_USERNAME</code></td><td>Логін адміна для build.sh</td><td><code>admin</code></td></tr>
+  <tr><td><code>DJANGO_SUPERUSER_PASSWORD</code></td><td>Пароль адміна для build.sh</td><td><code>SuperSecret123!</code></td></tr>
+  <tr><td><code>DJANGO_SUPERUSER_EMAIL</code></td><td>Email адміна</td><td><code>admin@nexlearn.space</code></td></tr>
+</table>
+
+<h3>Frontend (.env.local)</h3>
+<table>
+  <tr><th>Змінна</th><th>Що це</th><th>Приклад</th></tr>
+  <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td>URL бекенду</td><td><code>https://nexlearn.up.railway.app</code></td></tr>
+  <tr><td><code>NEXT_PUBLIC_SITE_URL</code></td><td>URL фронтенду</td><td><code>https://nexlearn.space</code></td></tr>
+</table>
+
+<hr>
+
+<h2>Деплой</h2>
+
+<h3>Backend на Railway</h3>
+<ol>
+  <li>Підключити GitHub репозиторій</li>
+  <li>Root Directory: <code>backend/</code></li>
+  <li>Railway знаходить <code>Procfile</code>: <code>web: gunicorn config.wsgi --bind 0.0.0.0:$PORT</code></li>
+  <li>Запускає <code>build.sh</code>:
+    <ul>
+      <li><code>pip install -r requirements.txt</code></li>
+      <li><code>python manage.py migrate</code></li>
+      <li><code>python manage.py collectstatic</code></li>
+      <li>Створення / оновлення superuser-а</li>
+    </ul>
+  </li>
+  <li>Додати ENV-змінні через Dashboard</li>
+  <li>Railway видає URL: <code>nexlearn.up.railway.app</code></li>
+</ol>
+
+<h3>Frontend на Vercel</h3>
+<ol>
+  <li>Підключити GitHub репозиторій</li>
+  <li>Root Directory: <code>frontend/</code></li>
+  <li>Framework: автоматично визначається як Next.js</li>
+  <li><code>vercel.json</code>: <code>buildCommand: npm run build</code></li>
+  <li>Додати <code>NEXT_PUBLIC_API_URL</code></li>
+  <li>Vercel видає URL: <code>nexlearn.vercel.app</code> або власний домен</li>
+</ol>
+
+<h3>Database на Supabase</h3>
+<ol>
+  <li>Створити проект на <code>supabase.com</code></li>
+  <li>Settings → Database → отримати <code>Connection string</code> (URI)</li>
+  <li>Вставити в <code>DATABASE_URL</code> Railway</li>
+  <li>Перший <code>migrate</code> створює всі таблиці автоматично</li>
+</ol>
+
+<hr>
+
+<h2>Нюанси і фішки</h2>
+
+<h3>Annotated querysets для оптимізації</h3>
+<p>Замість N+1 запитів — підрахунок одним запитом через <code>annotate</code>:</p>
+<pre><code>Course.objects.annotate(
+    _avg_rating=Avg('ratings__score'),
+    _ratings_count=Count('ratings', distinct=True),
+    _students_count=Count('enrollments', distinct=True),
+)</code></pre>
+<p>Один SQL замість кількох сотень.</p>
+
+<h3>Окремий serializer для студентів</h3>
+<p><code>TestStudentDetailSerializer</code> не містить <code>correct_answer</code>. Студент фізично не може отримати правильні відповіді з API.</p>
+
+<h3>Ротація refresh-токенів</h3>
+<p>При кожному <code>/api/auth/refresh/</code> — старий refresh додається в blacklist, видається новий. Якщо хтось вкраде refresh — у нього є тільки 7 днів і одна спроба.</p>
+
+<h3>Автостворення superuser у CI/CD</h3>
+<p><code>build.sh</code> створює адміна при першому деплої. При наступних — оновлює пароль (зручно якщо забув).</p>
+
+<h3>get_or_create для сертифікатів</h3>
+<p>Запобігає дублюванню: якщо студент здав тест 5 разів — сертифікат буде один (через <code>unique_together</code>).</p>
+
+<h3>django-ratelimit на ендпоінтах автентифікації</h3>
+<p>Замість самописного rate-limit — готова бібліотека. <code>5/m per IP</code> на login, <code>3/m</code> на register.</p>
+
+<h3>WhiteNoise для статики</h3>
+<p>Не потрібен Nginx — gunicorn сам віддає Django admin CSS/JS через middleware.</p>
+
+<h3>JWT-токен у заголовку, не в cookies</h3>
+<p>Простіше для SPA + не потрібен CSRF. Мінус: вразливо до XSS.</p>
+
+<h3>Лінк деактивації admin URL</h3>
+<p><code>/mgmt-panel-x9k2/</code> замість <code>/admin/</code> — мінімальна спроба сховати від ботів-сканерів.</p>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 2: ЗВ'ЯЗКИ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Зв'язки між компонентами</h1>
+
+<h2>Стрілки: хто куди ходить</h2>
+
+<h3>Frontend (Next.js → Backend API)</h3>
+<pre><code>Next.js ──POST──▶ /api/auth/register/   Реєстрація
+Next.js ──POST──▶ /api/auth/login/      Логін → JWT
+Next.js ──POST──▶ /api/auth/refresh/    Оновити access
+Next.js ──GET───▶ /api/auth/me/         Дані юзера
+Next.js ──PATCH─▶ /api/auth/me/         Редагувати профіль
+
+Next.js ──GET───▶ /api/courses/         Каталог курсів
+Next.js ──POST──▶ /api/courses/         Створити курс
+Next.js ──GET───▶ /api/courses/{id}/    Деталі курсу
+Next.js ──POST──▶ /api/courses/{id}/enroll/  Записатися
+Next.js ──GET───▶ /api/courses/{id}/progress/  Прогрес
+Next.js ──POST──▶ /api/courses/{id}/materials/ Матеріал (FormData)
+Next.js ──POST──▶ /api/courses/{id}/comments/  Коментар
+Next.js ──POST──▶ /api/courses/{id}/rate/      Оцінка
+
+Next.js ──GET───▶ /api/tests/           Список тестів
+Next.js ──GET───▶ /api/tests/{id}/      Тест (без correct_answer для студента)
+Next.js ──POST──▶ /api/tests/{id}/submit/  Здати тест
+Next.js ──GET───▶ /api/tests/{id}/export/  CSV (тільки teacher/admin)
+
+Next.js ──GET───▶ /api/certificates/    Мої сертифікати
+Next.js ──GET───▶ /api/certificates/{id}/  Дані для PDF</code></pre>
+
+<h3>Backend (Django → External services)</h3>
+<pre><code>Django ──SQL──▶  Supabase PostgreSQL    Усі CRUD-операції
+Django ──FS───▶  media/avatars/         Аватари юзерів
+Django ──FS───▶  media/materials/       Матеріали курсів
+Django ──HTTP─▶  Vercel CDN             (відсутня — фронт окремо)
+Django ──SMTP─▶  (не використовується)  email-розсилки</code></pre>
+
+<h3>Frontend (Next.js → Browser APIs)</h3>
+<pre><code>Next.js ──Storage─▶ localStorage         access_token, refresh_token
+Next.js ──jsPDF───▶ Browser → Disk       PDF сертифіката
+Next.js ──Fetch───▶ Vercel CDN           Статика (Next.js bundle)</code></pre>
+
+<hr>
+
+<h2>Цикли даних</h2>
+
+<h3>Цикл 1: Авторизація</h3>
+<pre><code>Користувач (Next.js)
+    │
+    ▼
+POST /api/auth/login/
+    │
+    ▼
+Django: authenticate() → SimpleJWT
+    │
+    ▼
+Supabase: SELECT user WHERE username=...
+    │
+    ▼
+JWT-пара: { access (60хв), refresh (7д) }
+    │
+    ▼
+localStorage у браузері
+    │
+    ▼
+Усі наступні запити з заголовком Authorization: Bearer ...</code></pre>
+
+<h3>Цикл 2: Курс → Тест → Сертифікат</h3>
+<pre><code>Викладач створює курс
+    │
+    ├──▶ POST /api/courses/         (Course.status='draft')
+    ├──▶ POST /api/courses/{id}/materials/  (FileField)
+    ├──▶ PATCH /api/courses/{id}/   (status='published')
+    └──▶ POST /api/tests/           (Test + N TestQuestion)
+
+Слухач записується
+    │
+    ├──▶ POST /api/courses/{id}/enroll/   (CourseEnrollment)
+    ├──▶ GET  /api/tests/{id}/            (без correct_answer)
+    └──▶ POST /api/tests/{id}/submit/     (масив відповідей)
+            │
+            ▼
+        passed? ──Так──▶ Certificate.get_or_create()
+            │
+            └──Ні──▶ TestResult збережено, спробувати ще (max 3)</code></pre>
+
+<h3>Цикл 3: Оцінка курсу</h3>
+<pre><code>Слухач (зі своєї картки курсу)
+    │
+    ▼
+POST /api/courses/{id}/rate/  { score: 5 }
+    │
+    ▼
+Django: validate (1-5) → CourseRating.update_or_create
+    │
+    ▼
+Supabase: INSERT/UPDATE courses_courserating
+    │
+    ▼
+Avg(score) → повертається для всіх юзерів</code></pre>
+
+<hr>
+
+<h2>Залежності: що від чого залежить</h2>
+<table>
+  <tr><th>Якщо впаде...</th><th>Що зламається</th></tr>
+  <tr><td><strong>Supabase (PostgreSQL)</strong></td><td>Все: ні логіну, ні читання курсів, ні тестів. Сайт показує помилки.</td></tr>
+  <tr><td><strong>Railway (Backend)</strong></td><td>Фронтенд відкривається, але всі API повертають 502/таймаут. Можна тільки лендінг переглянути.</td></tr>
+  <tr><td><strong>Vercel (Frontend)</strong></td><td>Сайт недоступний. Бекенд працює — можна звертатись напряму через REST-клієнт.</td></tr>
+  <tr><td><strong>GitHub</strong></td><td>Не можна задеплоїти оновлення. Поточна версія працює.</td></tr>
+  <tr><td><strong>Disk (media/)</strong></td><td>Аватари і матеріали недоступні. Решта функцій працює.</td></tr>
+</table>
+
+<hr>
+
+<h2>Токени і ключі</h2>
+<table>
+  <tr><th>Ключ</th><th>Backend</th><th>Frontend</th></tr>
+  <tr><td><code>SECRET_KEY</code></td><td>✓ (підпис JWT)</td><td>✗</td></tr>
+  <tr><td><code>DATABASE_URL</code></td><td>✓ (підключення)</td><td>✗</td></tr>
+  <tr><td><code>ALLOWED_HOSTS</code></td><td>✓ (захист)</td><td>✗</td></tr>
+  <tr><td><code>CORS_ALLOWED_ORIGINS</code></td><td>✓ (CORS)</td><td>✗</td></tr>
+  <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td>✗</td><td>✓ (URL бекенду)</td></tr>
+  <tr><td><code>access_token</code> (JWT)</td><td>verify (стейтлес)</td><td>localStorage</td></tr>
+  <tr><td><code>refresh_token</code> (JWT)</td><td>blacklist у БД</td><td>localStorage</td></tr>
+  <tr><td><code>DJANGO_SUPERUSER_*</code></td><td>✓ (build.sh)</td><td>✗</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 3: ДІАГРАМИ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Діаграми зв'язків</h1>
+
+<h2>1. Frontend — дерево</h2>
+<div class="mermaid">
+graph TD
+    USER["👥 Користувач"] --> NEXT["🌐 Next.js — SSR/SSG"]
+
+    NEXT --> PUBLIC["🚪 Публічні сторінки"]
+    NEXT --> AUTH_PAGES["🔐 Auth сторінки"]
+    NEXT --> DASH["📊 Dashboard"]
+
+    PUBLIC --> LANDING["/ — лендінг"]
+
+    AUTH_PAGES --> LOGIN["/login"]
+    AUTH_PAGES --> REGISTER["/register"]
+
+    DASH --> COURSES["/courses — каталог"]
+    DASH --> TESTS["/tests — тести"]
+    DASH --> CERTS["/certificates — мої сертифікати"]
+    DASH --> PROFILE["/profile — налаштування"]
+    DASH --> ADMIN_USERS["/users — адмін"]
+
+    NEXT --> API_LIB["lib/api.ts — axios"]
+    API_LIB --> JWT_INTER["JWT interceptor"]
+    JWT_INTER --> BACKEND["⚙️ Django REST API"]
+
+    NEXT --> JSPDF["📄 jsPDF"]
+    JSPDF --> CERT_PDF["💾 PDF сертифікат"]
+
+    NEXT --> LS[("localStorage<br/>tokens")]
+
+    linkStyle 0 stroke:#22d3ee,stroke-width:2px
+    linkStyle 1 stroke:#a78bfa,stroke-width:2px
+    linkStyle 2 stroke:#34d399,stroke-width:2px
+    linkStyle 3 stroke:#a78bfa,stroke-width:2px
+    linkStyle 4 stroke:#f472b6,stroke-width:2px
+    linkStyle 5 stroke:#f472b6,stroke-width:2px
+    linkStyle 6 stroke:#f472b6,stroke-width:2px
+    linkStyle 7 stroke:#34d399,stroke-width:2px
+    linkStyle 8 stroke:#34d399,stroke-width:2px
+    linkStyle 9 stroke:#34d399,stroke-width:2px
+    linkStyle 10 stroke:#34d399,stroke-width:2px
+    linkStyle 11 stroke:#ef4444,stroke-width:2px
+    linkStyle 12 stroke:#fbbf24,stroke-width:2px
+    linkStyle 13 stroke:#fbbf24,stroke-width:2px
+    linkStyle 14 stroke:#22d3ee,stroke-width:3px
+    linkStyle 15 stroke:#fbbf24,stroke-width:2px
+    linkStyle 16 stroke:#60a5fa,stroke-width:2px
+    linkStyle 17 stroke:#60a5fa,stroke-width:2px
+</div>
+
+<h2>2. Backend — дерево</h2>
+<div class="mermaid">
+graph TD
+    REQ["📨 HTTP-запит з JWT"] --> CORS["🛡 CORS Middleware"]
+    CORS --> JWT_AUTH["🔑 JWTAuthentication"]
+    JWT_AUTH --> URLS["📋 URLconf"]
+
+    URLS --> APP_USERS["users/"]
+    URLS --> APP_COURSES["courses/"]
+    URLS --> APP_TESTS["tests_module/"]
+    URLS --> APP_CERTS["certificates/"]
+
+    APP_USERS --> V_REG["RegisterView<br/>+ ratelimit 3/m"]
+    APP_USERS --> V_LOGIN["TokenObtainPairView<br/>+ ratelimit 5/m"]
+    APP_USERS --> V_REFRESH["TokenRefreshView"]
+    APP_USERS --> V_ME["MeView GET/PATCH"]
+    APP_USERS --> V_USERS["UserListView<br/>IsAdmin only"]
+
+    APP_COURSES --> V_COURSE["CourseListCreateView"]
+    APP_COURSES --> V_DETAIL["CourseDetailView"]
+    APP_COURSES --> V_ENROLL["CourseEnrollView"]
+    APP_COURSES --> V_MAT["CourseMaterialView"]
+    APP_COURSES --> V_RATE["CourseRateView"]
+
+    APP_TESTS --> V_TEST["TestListCreateView"]
+    APP_TESTS --> V_SUBMIT["SubmitTestView<br/>+ створення сертифіката"]
+    APP_TESTS --> V_EXPORT["ExportTestResultsView"]
+
+    APP_CERTS --> V_CERT["CertificateListView"]
+
+    V_REG --> ORM[("🗄 Django ORM")]
+    V_COURSE --> ORM
+    V_TEST --> ORM
+    V_SUBMIT --> ORM
+    V_CERT --> ORM
+    V_MAT --> FS[("💾 media/")]
+
+    ORM --> PG[("🐘 PostgreSQL<br/>Supabase")]
+
+    linkStyle 0 stroke:#22d3ee,stroke-width:2px
+    linkStyle 1 stroke:#a78bfa,stroke-width:2px
+    linkStyle 2 stroke:#34d399,stroke-width:2px
+    linkStyle 3 stroke:#f472b6,stroke-width:2px
+    linkStyle 4 stroke:#f472b6,stroke-width:2px
+    linkStyle 5 stroke:#f472b6,stroke-width:2px
+    linkStyle 6 stroke:#f472b6,stroke-width:2px
+    linkStyle 7 stroke:#fbbf24,stroke-width:2px
+    linkStyle 8 stroke:#fbbf24,stroke-width:2px
+    linkStyle 9 stroke:#fbbf24,stroke-width:2px
+    linkStyle 10 stroke:#fbbf24,stroke-width:2px
+    linkStyle 11 stroke:#ef4444,stroke-width:2px
+    linkStyle 12 stroke:#22d3ee,stroke-width:2px
+    linkStyle 13 stroke:#22d3ee,stroke-width:2px
+    linkStyle 14 stroke:#22d3ee,stroke-width:2px
+    linkStyle 15 stroke:#22d3ee,stroke-width:2px
+    linkStyle 16 stroke:#22d3ee,stroke-width:2px
+    linkStyle 17 stroke:#34d399,stroke-width:2px
+    linkStyle 18 stroke:#34d399,stroke-width:2px
+    linkStyle 19 stroke:#34d399,stroke-width:2px
+    linkStyle 20 stroke:#a78bfa,stroke-width:2px
+    linkStyle 21 stroke:#60a5fa,stroke-width:2px
+    linkStyle 22 stroke:#60a5fa,stroke-width:2px
+    linkStyle 23 stroke:#60a5fa,stroke-width:2px
+    linkStyle 24 stroke:#60a5fa,stroke-width:2px
+    linkStyle 25 stroke:#60a5fa,stroke-width:2px
+    linkStyle 26 stroke:#fbbf24,stroke-width:2px
+    linkStyle 27 stroke:#ef4444,stroke-width:3px
+</div>
+
+<h2>3. Все разом — повне дерево</h2>
+<div class="mermaid">
+graph TD
+    ROOT["🎓 NexLearn — nexlearn.space"]
+
+    ROOT --> FRONT_BRANCH["🌐 Frontend"]
+    ROOT --> BACK_BRANCH["⚙️ Backend"]
+    ROOT --> STORE_BRANCH["💾 Сховища"]
+
+    FRONT_BRANCH --> NEXT_TS["Next.js + TypeScript"]
+    FRONT_BRANCH --> UI["UI: Tailwind + Lucide"]
+    FRONT_BRANCH --> AXIOS_LIB["Axios + JWT"]
+
+    NEXT_TS --> DASH_PAGES["/dashboard/* (9 сторінок)"]
+    NEXT_TS --> AUTH_PAGES["/login, /register"]
+
+    BACK_BRANCH --> DJANGO["Django 6 + DRF"]
+    BACK_BRANCH --> JWT_LIB["SimpleJWT (rotation)"]
+    BACK_BRANCH --> RATELIMIT["django-ratelimit"]
+
+    DJANGO --> APPS["4 Django apps"]
+    APPS --> A_USERS["users<br/>3 ролі"]
+    APPS --> A_COURSES["courses<br/>5 моделей"]
+    APPS --> A_TESTS["tests_module<br/>3 моделі"]
+    APPS --> A_CERTS["certificates<br/>UUID"]
+
+    STORE_BRANCH --> SUPA[("🐘 Supabase<br/>PostgreSQL")]
+    STORE_BRANCH --> MEDIA[("📁 media/<br/>аватари + файли")]
+    STORE_BRANCH --> LS[("💼 localStorage<br/>JWT tokens")]
+
+    A_USERS -->|SQL| SUPA
+    A_COURSES -->|SQL| SUPA
+    A_TESTS -->|SQL| SUPA
+    A_CERTS -->|SQL| SUPA
+    A_USERS -->|FileField| MEDIA
+    A_COURSES -->|FileField| MEDIA
+
+    AXIOS_LIB -->|HTTPS| DJANGO
+    AXIOS_LIB -->|tokens| LS
+
+    DASH_PAGES -->|fetch| AXIOS_LIB
+    AUTH_PAGES -->|fetch| AXIOS_LIB
+
+    linkStyle 0 stroke:#22d3ee,stroke-width:3px
+    linkStyle 1 stroke:#60a5fa,stroke-width:3px
+    linkStyle 2 stroke:#ef4444,stroke-width:3px
+    linkStyle 3 stroke:#22d3ee,stroke-width:2px
+    linkStyle 4 stroke:#22d3ee,stroke-width:2px
+    linkStyle 5 stroke:#22d3ee,stroke-width:2px
+    linkStyle 6 stroke:#a78bfa,stroke-width:2px
+    linkStyle 7 stroke:#a78bfa,stroke-width:2px
+    linkStyle 8 stroke:#60a5fa,stroke-width:2px
+    linkStyle 9 stroke:#60a5fa,stroke-width:2px
+    linkStyle 10 stroke:#60a5fa,stroke-width:2px
+    linkStyle 11 stroke:#60a5fa,stroke-width:2px
+    linkStyle 12 stroke:#fbbf24,stroke-width:2px
+    linkStyle 13 stroke:#fbbf24,stroke-width:2px
+    linkStyle 14 stroke:#fbbf24,stroke-width:2px
+    linkStyle 15 stroke:#fbbf24,stroke-width:2px
+    linkStyle 16 stroke:#ef4444,stroke-width:2px
+    linkStyle 17 stroke:#ef4444,stroke-width:2px
+    linkStyle 18 stroke:#ef4444,stroke-width:2px
+    linkStyle 19 stroke:#34d399,stroke-width:2px
+    linkStyle 20 stroke:#34d399,stroke-width:2px
+    linkStyle 21 stroke:#34d399,stroke-width:2px
+    linkStyle 22 stroke:#34d399,stroke-width:2px
+    linkStyle 23 stroke:#fbbf24,stroke-width:2px
+    linkStyle 24 stroke:#fbbf24,stroke-width:2px
+    linkStyle 25 stroke:#22d3ee,stroke-width:3px
+    linkStyle 26 stroke:#a78bfa,stroke-width:2px
+    linkStyle 27 stroke:#60a5fa,stroke-width:2px
+    linkStyle 28 stroke:#60a5fa,stroke-width:2px
+</div>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 4: ПОРІВНЯННЯ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Порівняння: Frontend vs Backend</h1>
+
+<table>
+  <tr>
+    <th style="width:30%">Функція</th>
+    <th style="width:35%">🌐 Frontend (Next.js)</th>
+    <th style="width:35%">⚙️ Backend (Django)</th>
+  </tr>
+  <tr>
+    <td><strong>Реєстрація</strong></td>
+    <td>Форма з валідацією на льоту</td>
+    <td>POST /api/auth/register/ + rate-limit + хешування</td>
+  </tr>
+  <tr>
+    <td><strong>Вхід</strong></td>
+    <td>Форма + збереження JWT</td>
+    <td>SimpleJWT генерує access + refresh</td>
+  </tr>
+  <tr>
+    <td><strong>Поновлення сесії</strong></td>
+    <td>Axios interceptor: автоматичний refresh при 401</td>
+    <td>Ротація: новий refresh + blacklist старого</td>
+  </tr>
+  <tr>
+    <td><strong>Каталог курсів</strong></td>
+    <td>Список з пошуком, фільтрами, рейтингом</td>
+    <td>QuerySet з annotate (avg, count)</td>
+  </tr>
+  <tr>
+    <td><strong>Створення курсу</strong></td>
+    <td>Форма з draft/published статусом</td>
+    <td>IsTeacherOrAdmin permission</td>
+  </tr>
+  <tr>
+    <td><strong>Завантаження файлу</strong></td>
+    <td>FormData + drag-and-drop</td>
+    <td>FileField з валідацією size ≤ 10MB</td>
+  </tr>
+  <tr>
+    <td><strong>Запис на курс</strong></td>
+    <td>Кнопка з оптимістичним апдейтом</td>
+    <td>get_or_create на CourseEnrollment</td>
+  </tr>
+  <tr>
+    <td><strong>Тестування</strong></td>
+    <td>UI з таймером, прогрес-баром, навігацією</td>
+    <td>Підрахунок балів + автостворення сертифіката</td>
+  </tr>
+  <tr>
+    <td><strong>Захист від шахрайства</strong></td>
+    <td>(не покладатись на фронт)</td>
+    <td>Окремі serializers без correct_answer</td>
+  </tr>
+  <tr>
+    <td><strong>Сертифікати</strong></td>
+    <td>Список + jsPDF для генерації</td>
+    <td>UUID-номер + автостворення при passed</td>
+  </tr>
+  <tr>
+    <td><strong>Адмін-панель</strong></td>
+    <td>/dashboard/users — змінити роль</td>
+    <td>Django Admin на /mgmt-panel-x9k2/ + /api/users/</td>
+  </tr>
+  <tr>
+    <td><strong>Зберігання токенів</strong></td>
+    <td>localStorage</td>
+    <td>Stateless (з blacklist для refresh)</td>
+  </tr>
+  <tr>
+    <td><strong>Профіль і аватар</strong></td>
+    <td>Форма з прев'ю картинки</td>
+    <td>ImageField + Pillow + 2MB ліміт</td>
+  </tr>
+  <tr>
+    <td><strong>Локалізація</strong></td>
+    <td>Український інтерфейс</td>
+    <td><code>LANGUAGE_CODE='uk'</code>, <code>TIME_ZONE='Europe/Kyiv'</code></td>
+  </tr>
+  <tr>
+    <td><strong>Обробка помилок</strong></td>
+    <td>error.tsx (Next.js error boundary)</td>
+    <td>DRF exceptions → JSON з детальним описом</td>
+  </tr>
+  <tr>
+    <td><strong>Хостинг</strong></td>
+    <td>Vercel (CDN, безкоштовно)</td>
+    <td>Railway/Render (gunicorn)</td>
+  </tr>
+  <tr>
+    <td><strong>Мова</strong></td>
+    <td>TypeScript + React 19</td>
+    <td>Python 3.12 + Django 6</td>
+  </tr>
+</table>
+
+<h2>Що спільне</h2>
+<ul>
+  <li><strong>Один JWT-токен</strong> — обидва формати працюють з ним (фронт зберігає, бек перевіряє)</li>
+  <li><strong>JSON</strong> — формат обміну даних</li>
+  <li><strong>Ролі</strong> — і фронт, і бек перевіряють роль (фронт ховає елементи UI, бек блокує API)</li>
+  <li><strong>Українська локаль</strong> — інтерфейс і повідомлення</li>
+  <li><strong>Деплой через GitHub</strong> — обидва автодеплоюються при push</li>
+</ul>
+
+<h2>Що унікальне</h2>
+<table>
+  <tr><th>Тільки Frontend</th><th>Тільки Backend</th></tr>
+  <tr><td>SSR/SSG для SEO</td><td>Хешування паролів (PBKDF2)</td></tr>
+  <tr><td>jsPDF — генерація PDF у браузері</td><td>Підрахунок балів тесту</td></tr>
+  <tr><td>localStorage — токени</td><td>Видача сертифікатів (UUID)</td></tr>
+  <tr><td>Tailwind UI</td><td>Django Admin (для випадків)</td></tr>
+  <tr><td>Axios interceptors (auto-refresh)</td><td>Rate-limit на ендпоінтах</td></tr>
+  <tr><td>Lucide іконки</td><td>JWT blacklist при ротації</td></tr>
+  <tr><td>Drag-and-drop файлів</td><td>QuerySet annotations</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 5: ГЛОСАРІЙ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Глосарій термінів</h1>
+
+<p>Пояснення всіх технічних слів, які зустрічаються в документі, простою мовою.</p>
+
+<table>
+  <tr><th style="width:25%">Термін</th><th>Що це означає</th></tr>
+  <tr>
+    <td><strong>Next.js</strong></td>
+    <td>Фреймворк на основі React. Дає готову маршрутизацію, сервер-сайд рендеринг (SSR), оптимізацію картинок, API-роути «з коробки». Зараз використовуємо App Router (нова система).</td>
+  </tr>
+  <tr>
+    <td><strong>React</strong></td>
+    <td>JavaScript-бібліотека для будівництва інтерфейсів з компонентів. Кожна кнопка, форма, картка — це React-компонент.</td>
+  </tr>
+  <tr>
+    <td><strong>TypeScript</strong></td>
+    <td>JavaScript з типами. Перед запуском перевіряє: чи правильно ти передаєш дані. Зменшує кількість багів у 5-10 разів.</td>
+  </tr>
+  <tr>
+    <td><strong>Tailwind CSS</strong></td>
+    <td>Бібліотека стилів через класи. Замість писати свій CSS — використовуєш готові класи: <code>className="text-xl font-bold p-4 bg-blue-500"</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Django</strong></td>
+    <td>Веб-фреймворк на Python. «Батарейки в комплекті» — admin-панель, ORM, автентифікація, форми вже готові.</td>
+  </tr>
+  <tr>
+    <td><strong>Django REST Framework (DRF)</strong></td>
+    <td>Розширення Django для будівництва REST API. Дає Serializers, ViewSets, Permissions, автогенерацію документації.</td>
+  </tr>
+  <tr>
+    <td><strong>REST API</strong></td>
+    <td>Стиль API: ресурси через URL (<code>/api/courses/</code>), методи через HTTP (GET/POST/PUT/DELETE). Дані у JSON.</td>
+  </tr>
+  <tr>
+    <td><strong>JWT (JSON Web Token)</strong></td>
+    <td>Підписаний токен, який містить дані користувача. Бекенд може перевірити його без звернення до БД (stateless).</td>
+  </tr>
+  <tr>
+    <td><strong>Access token</strong></td>
+    <td>Короткий JWT (60 хв) для доступу до API. Передається в заголовку <code>Authorization: Bearer &lt;token&gt;</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Refresh token</strong></td>
+    <td>Довгий JWT (7 днів) для отримання нового access. При використанні старий додається в blacklist.</td>
+  </tr>
+  <tr>
+    <td><strong>Token rotation</strong></td>
+    <td>При кожному оновленні access — видається ще і новий refresh. Старий більше не працює. Захист від крадіжки.</td>
+  </tr>
+  <tr>
+    <td><strong>Token blacklist</strong></td>
+    <td>Список refresh-токенів, які вже не дійсні (через ротацію або logout). Зберігається в БД.</td>
+  </tr>
+  <tr>
+    <td><strong>ORM (Object-Relational Mapping)</strong></td>
+    <td>Замість писати SQL — пишеш Python-код: <code>Course.objects.filter(status='published')</code>. Django сам формує SQL.</td>
+  </tr>
+  <tr>
+    <td><strong>Migration</strong></td>
+    <td>Файл, який описує зміну в БД (додав поле, створив таблицю). Генерується автоматично через <code>makemigrations</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>Serializer (DRF)</strong></td>
+    <td>«Перекладач» між Python-об'єктами і JSON. Описує які поля видавати, які приймати, як валідувати.</td>
+  </tr>
+  <tr>
+    <td><strong>Permission</strong></td>
+    <td>Перевірка «чи має право цей юзер виконати цю дію». Окрема для кожного view.</td>
+  </tr>
+  <tr>
+    <td><strong>QuerySet</strong></td>
+    <td>«Запит до БД» в Django ORM. Лінивий — виконується тільки коли потрібен результат.</td>
+  </tr>
+  <tr>
+    <td><strong>annotate()</strong></td>
+    <td>Метод QuerySet — додає обчислюване поле через SQL-функції (Avg, Count, Sum). Замість N запитів — один.</td>
+  </tr>
+  <tr>
+    <td><strong>select_related / prefetch_related</strong></td>
+    <td>Оптимізація: завантажити пов'язані об'єкти одним запитом замість багатьох (вирішує проблему N+1).</td>
+  </tr>
+  <tr>
+    <td><strong>Vercel</strong></td>
+    <td>Хостинг для Next.js + статичних сайтів. Безкоштовний для невеликих проектів. Автодеплой з GitHub.</td>
+  </tr>
+  <tr>
+    <td><strong>Railway / Render</strong></td>
+    <td>PaaS-хостинг для Django/Node/Python. Запускає <code>Procfile</code>, надає URL і HTTPS.</td>
+  </tr>
+  <tr>
+    <td><strong>Supabase</strong></td>
+    <td>«Firebase з відкритим кодом». Дає PostgreSQL + Auth + Storage + Realtime. Безкоштовний план для невеликих проектів.</td>
+  </tr>
+  <tr>
+    <td><strong>PostgreSQL</strong></td>
+    <td>Реляційна база даних. Швидка, надійна, з підтримкою JSON-полів, full-text search, складних запитів.</td>
+  </tr>
+  <tr>
+    <td><strong>gunicorn</strong></td>
+    <td>WSGI-сервер для Python. Запускає Django у виробничому режимі (на проді замість runserver).</td>
+  </tr>
+  <tr>
+    <td><strong>WSGI</strong></td>
+    <td>Стандарт інтерфейсу між веб-сервером і Python-додатком. Django, Flask його використовують.</td>
+  </tr>
+  <tr>
+    <td><strong>WhiteNoise</strong></td>
+    <td>Бібліотека, яка дозволяє Django (через gunicorn) віддавати статичні файли без Nginx.</td>
+  </tr>
+  <tr>
+    <td><strong>Procfile</strong></td>
+    <td>Файл для PaaS (Railway, Render, Heroku) — описує які процеси запускати: <code>web: gunicorn ...</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>CORS (Cross-Origin Resource Sharing)</strong></td>
+    <td>Правило безпеки браузера: API дозволяє запити тільки з вказаних доменів. Захист від чужих сайтів.</td>
+  </tr>
+  <tr>
+    <td><strong>CSRF (Cross-Site Request Forgery)</strong></td>
+    <td>Атака, коли чужий сайт «підпихає» запити до твого API. Захист — токен в формі. Не потрібен якщо JWT в заголовку.</td>
+  </tr>
+  <tr>
+    <td><strong>CSP (Content Security Policy)</strong></td>
+    <td>Заголовок, який вказує браузеру що завантажувати дозволено (свій код, свої картинки). Блокує XSS-атаки.</td>
+  </tr>
+  <tr>
+    <td><strong>HSTS (HTTP Strict Transport Security)</strong></td>
+    <td>Заголовок, який каже браузеру: завжди використовуй HTTPS для цього домену протягом N днів.</td>
+  </tr>
+  <tr>
+    <td><strong>XSS (Cross-Site Scripting)</strong></td>
+    <td>Атака: чужий JavaScript-код виконується на твоєму сайті. Захист: CSP + санітизація вводу.</td>
+  </tr>
+  <tr>
+    <td><strong>Rate-limit</strong></td>
+    <td>Обмеження запитів. Наприклад, «5 спроб логіну на хвилину з однієї IP». Захист від брутфорсу.</td>
+  </tr>
+  <tr>
+    <td><strong>PBKDF2</strong></td>
+    <td>Алгоритм хешування паролів. Дуже повільний — навіть якщо вкрасти БД, підбір одного пароля займає місяці.</td>
+  </tr>
+  <tr>
+    <td><strong>UUID</strong></td>
+    <td>128-бітний унікальний ідентифікатор: <code>550e8400-e29b-41d4-a716-446655440000</code>. Шанс колізії практично нуль.</td>
+  </tr>
+  <tr>
+    <td><strong>Axios</strong></td>
+    <td>HTTP-бібліотека для JavaScript. Простіший за <code>fetch</code>, підтримує interceptors (для auto-refresh JWT).</td>
+  </tr>
+  <tr>
+    <td><strong>jsPDF</strong></td>
+    <td>JavaScript-бібліотека для генерації PDF у браузері. Не потрібен сервер.</td>
+  </tr>
+  <tr>
+    <td><strong>localStorage</strong></td>
+    <td>Сховище в браузері (~5 MB). Тут зберігаються JWT-токени. Доступ через <code>localStorage.setItem(...)</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>SSR (Server-Side Rendering)</strong></td>
+    <td>Next.js рендерить HTML на сервері і віддає браузеру. Швидше перше завантаження, краще для SEO.</td>
+  </tr>
+  <tr>
+    <td><strong>SSG (Static Site Generation)</strong></td>
+    <td>Сторінки генеруються на етапі білду. Vercel CDN віддає їх миттєво. Найшвидший варіант.</td>
+  </tr>
+  <tr>
+    <td><strong>SPA (Single Page Application)</strong></td>
+    <td>Сайт, який не перезавантажує сторінку. Усе через React + AJAX. Швидко, плавно.</td>
+  </tr>
+  <tr>
+    <td><strong>App Router (Next.js)</strong></td>
+    <td>Нова система маршрутизації Next.js (з v13). Папки в <code>src/app/</code> = маршрути.</td>
+  </tr>
+  <tr>
+    <td><strong>Middleware</strong></td>
+    <td>Код, який виконується між запитом і відповіддю. Django: CORS, AuthN, GZip. Next.js: edge-функції.</td>
+  </tr>
+  <tr>
+    <td><strong>django-ratelimit</strong></td>
+    <td>Бібліотека для обмеження запитів у Django. Додається через декоратор: <code>@ratelimit(key='ip', rate='5/m')</code>.</td>
+  </tr>
+  <tr>
+    <td><strong>django-cors-headers</strong></td>
+    <td>Бібліотека для CORS у Django. Додає правильні заголовки для дозволених origin-ів.</td>
+  </tr>
+  <tr>
+    <td><strong>Pillow</strong></td>
+    <td>Бібліотека для обробки картинок у Python. Потрібна Django для ImageField (валідація формату, ресайз).</td>
+  </tr>
+  <tr>
+    <td><strong>FileField / ImageField</strong></td>
+    <td>Поля моделі Django для зберігання файлів. Файл лежить на диску (або S3), у БД — тільки шлях.</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 6: МАРШРУТИ ЗАПИТІВ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Маршрут запиту від А до Я</h1>
+<p>Покрокове пояснення що відбувається при кожній дії — від натискання кнопки до відповіді.</p>
+
+<h2>Сценарій 1: Слухач реєструється і входить</h2>
+<table>
+  <tr><th style="width:8%">Крок</th><th style="width:20%">Де</th><th>Що відбувається</th></tr>
+  <tr><td><strong>1</strong></td><td>Браузер</td><td>Слухач відкриває <code>nexlearn.space/register</code></td></tr>
+  <tr><td><strong>2</strong></td><td>Vercel CDN</td><td>Віддає згенеровану Next.js сторінку</td></tr>
+  <tr><td><strong>3</strong></td><td>React</td><td>Гідрація: HTML стає інтерактивним. Малюється форма</td></tr>
+  <tr><td><strong>4</strong></td><td>Браузер</td><td>Слухач заповнює: username, email, password, role=student</td></tr>
+  <tr><td><strong>5</strong></td><td>Axios</td><td>POST <code>{API_URL}/api/auth/register/</code> з JSON</td></tr>
+  <tr><td><strong>6</strong></td><td>CORS Middleware</td><td>Перевіряє <code>Origin</code> заголовок проти <code>CORS_ALLOWED_ORIGINS</code></td></tr>
+  <tr><td><strong>7</strong></td><td>django-ratelimit</td><td>Перевіряє: чи не більше 3 спроб реєстрації з цієї IP за хвилину</td></tr>
+  <tr><td><strong>8</strong></td><td>RegisterSerializer</td><td>Валідація: паролі співпадають, role не admin, username унікальний</td></tr>
+  <tr><td><strong>9</strong></td><td>Django ORM</td><td><code>set_password</code> хешує через PBKDF2 → INSERT users_user</td></tr>
+  <tr><td><strong>10</strong></td><td>Supabase</td><td>Запис у таблиці <code>users_user</code></td></tr>
+  <tr><td><strong>11</strong></td><td>Frontend</td><td>Отримує { id, username, role, ... } → редірект на /login</td></tr>
+  <tr><td><strong>12</strong></td><td>Браузер</td><td>Слухач вводить пароль → POST /api/auth/login/</td></tr>
+  <tr><td><strong>13</strong></td><td>SimpleJWT</td><td>authenticate() → генерує access (60 хв) + refresh (7 дн)</td></tr>
+  <tr><td><strong>14</strong></td><td>Frontend</td><td><code>localStorage.setItem('access_token', ...)</code></td></tr>
+  <tr><td><strong>15</strong></td><td>Браузер</td><td>Редірект на <code>/dashboard</code></td></tr>
+</table>
+
+<h2>Сценарій 2: Викладач створює курс і додає матеріал</h2>
+<table>
+  <tr><th style="width:8%">Крок</th><th style="width:20%">Де</th><th>Що відбувається</th></tr>
+  <tr><td><strong>1</strong></td><td>Браузер</td><td>Викладач на <code>/dashboard/courses</code> натискає «Створити курс»</td></tr>
+  <tr><td><strong>2</strong></td><td>Frontend</td><td>POST /api/courses/ з { title, description, status: 'draft' }</td></tr>
+  <tr><td><strong>3</strong></td><td>Axios</td><td>Додає <code>Authorization: Bearer &lt;access_token&gt;</code></td></tr>
+  <tr><td><strong>4</strong></td><td>JWT Auth</td><td>Перевіряє підпис, decode payload → request.user</td></tr>
+  <tr><td><strong>5</strong></td><td>Permissions</td><td><code>IsTeacherOrAdmin</code> → user.role == 'teacher' ✓</td></tr>
+  <tr><td><strong>6</strong></td><td>Serializer</td><td><code>CourseCreateSerializer</code> валідує + автозаповнює <code>teacher = request.user</code></td></tr>
+  <tr><td><strong>7</strong></td><td>Django ORM</td><td>INSERT courses_course → повертає id=5</td></tr>
+  <tr><td><strong>8</strong></td><td>Frontend</td><td>Редірект на /dashboard/courses/5</td></tr>
+  <tr><td><strong>9</strong></td><td>Браузер</td><td>Drag-and-drop файла lecture.pdf (8 MB)</td></tr>
+  <tr><td><strong>10</strong></td><td>Axios</td><td>POST /api/courses/5/materials/ з FormData (multipart)</td></tr>
+  <tr><td><strong>11</strong></td><td>Permissions</td><td><code>IsOwnerOrAdmin</code> → course.teacher == request.user ✓</td></tr>
+  <tr><td><strong>12</strong></td><td>Validator</td><td><code>validate_file_size_10mb</code> → 8 MB &lt; 10 MB ✓</td></tr>
+  <tr><td><strong>13</strong></td><td>Django</td><td>FileField зберігає в <code>media/materials/lecture_abc123.pdf</code></td></tr>
+  <tr><td><strong>14</strong></td><td>Supabase</td><td>INSERT courses_coursematerial з шляхом до файлу</td></tr>
+  <tr><td><strong>15</strong></td><td>Frontend</td><td>Показує файл у списку матеріалів</td></tr>
+</table>
+
+<h2>Сценарій 3: Слухач здає тест і отримує сертифікат</h2>
+<table>
+  <tr><th style="width:8%">Крок</th><th style="width:20%">Де</th><th>Що відбувається</th></tr>
+  <tr><td><strong>1</strong></td><td>Браузер</td><td>Слухач відкриває <code>/dashboard/tests/3</code></td></tr>
+  <tr><td><strong>2</strong></td><td>Frontend</td><td>GET /api/tests/3/ з JWT</td></tr>
+  <tr><td><strong>3</strong></td><td>Backend</td><td>user.role == 'student' → <code>TestStudentDetailSerializer</code> (без correct_answer!)</td></tr>
+  <tr><td><strong>4</strong></td><td>Frontend</td><td>Малює запитання + варіанти + таймер на time_limit хвилин</td></tr>
+  <tr><td><strong>5</strong></td><td>Браузер</td><td>Слухач відповідає, накопичується <code>answers = [1, 2, 0, 3, 1]</code></td></tr>
+  <tr><td><strong>6</strong></td><td>Frontend</td><td>POST /api/tests/3/submit/ з масивом</td></tr>
+  <tr><td><strong>7</strong></td><td>SubmitTestView</td><td>Перевіряє <code>CourseEnrollment.exists()</code> → ✓</td></tr>
+  <tr><td><strong>8</strong></td><td>SubmitTestView</td><td>Перевіряє <code>TestResult.count() &lt; 3</code> → ✓ (це перша спроба)</td></tr>
+  <tr><td><strong>9</strong></td><td>SubmitTestView</td><td>Перевіряє довжина масиву == questions.count()</td></tr>
+  <tr><td><strong>10</strong></td><td>SubmitTestView</td><td>Цикл: <code>for q, a in zip(...): if a == q.correct_answer: correct++</code></td></tr>
+  <tr><td><strong>11</strong></td><td>SubmitTestView</td><td><code>score = round(correct/total * 100)</code> = 80</td></tr>
+  <tr><td><strong>12</strong></td><td>SubmitTestView</td><td><code>passed = 80 &gt;= 70</code> (passing_score) → ✓</td></tr>
+  <tr><td><strong>13</strong></td><td>Django ORM</td><td>INSERT tests_module_testresult</td></tr>
+  <tr><td><strong>14</strong></td><td>Django ORM</td><td><code>Certificate.get_or_create</code> → INSERT certificates_certificate з UUID</td></tr>
+  <tr><td><strong>15</strong></td><td>Frontend</td><td>Отримує { score: 80, passed: true } → показує модальне вікно</td></tr>
+  <tr><td><strong>16</strong></td><td>Браузер</td><td>Слухач переходить на <code>/dashboard/certificates</code></td></tr>
+  <tr><td><strong>17</strong></td><td>Frontend</td><td>GET /api/certificates/ → список</td></tr>
+  <tr><td><strong>18</strong></td><td>jsPDF</td><td>Натискає «Завантажити PDF» → генерує A4 з даними сертифіката</td></tr>
+  <tr><td><strong>19</strong></td><td>Браузер</td><td>Зберігає <code>certificate-{uuid}.pdf</code> на пристрій</td></tr>
+</table>
+
+<h2>Сценарій 4: Адмін змінює роль користувача</h2>
+<table>
+  <tr><th style="width:8%">Крок</th><th style="width:20%">Де</th><th>Що відбувається</th></tr>
+  <tr><td><strong>1</strong></td><td>Браузер</td><td>Адмін відкриває <code>/dashboard/users</code></td></tr>
+  <tr><td><strong>2</strong></td><td>Frontend</td><td>GET /api/users/ з JWT</td></tr>
+  <tr><td><strong>3</strong></td><td>Permissions</td><td><code>IsAdmin</code> → user.is_admin ✓ (інакше 403)</td></tr>
+  <tr><td><strong>4</strong></td><td>Backend</td><td>QuerySet з пагінацією → <code>UserListSerializer</code></td></tr>
+  <tr><td><strong>5</strong></td><td>Frontend</td><td>Малює таблицю з юзерами і селектами ролей</td></tr>
+  <tr><td><strong>6</strong></td><td>Браузер</td><td>Адмін обирає для юзера id=42 нову роль 'teacher'</td></tr>
+  <tr><td><strong>7</strong></td><td>Frontend</td><td>PATCH /api/users/42/role/ з { role: 'teacher' }</td></tr>
+  <tr><td><strong>8</strong></td><td>UserChangeRoleView</td><td><code>ChangeRoleSerializer</code> валідує: role ∈ {admin, teacher, student}</td></tr>
+  <tr><td><strong>9</strong></td><td>Django ORM</td><td><code>user.role = 'teacher'; user.save(update_fields=['role'])</code></td></tr>
+  <tr><td><strong>10</strong></td><td>Supabase</td><td>UPDATE users_user SET role='teacher' WHERE id=42</td></tr>
+  <tr><td><strong>11</strong></td><td>Frontend</td><td>Оновлений UserSerializer → перерендер UI</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 7: СЦЕНАРІЇ ПОМИЛОК -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Сценарії помилок і як система їх обробляє</h1>
+
+<table>
+  <tr>
+    <th style="width:30%">Що сталось</th>
+    <th style="width:35%">Що відбувається</th>
+    <th style="width:35%">Як система реагує</th>
+  </tr>
+  <tr>
+    <td><strong>JWT прострочений</strong></td>
+    <td>Access-токен старший за 60 хв, юзер робить запит</td>
+    <td>Backend повертає 401. Axios interceptor ловить, робить POST /api/auth/refresh/ з refresh-токеном, отримує новий access, повторює оригінальний запит. Користувач нічого не помічає.</td>
+  </tr>
+  <tr>
+    <td><strong>Refresh теж прострочений</strong></td>
+    <td>Refresh старший за 7 днів</td>
+    <td>Refresh повертає 401. Frontend очищує localStorage і редіректить на /login. Користувач знову логіниться.</td>
+  </tr>
+  <tr>
+    <td><strong>Брутфорс пароля</strong></td>
+    <td>Хтось пробує підібрати пароль перебором</td>
+    <td>django-ratelimit: 5 спроб логіну на хвилину з однієї IP. Після 5-ї — 429 Too Many Requests на хвилину. Заборона спроб через декоратор.</td>
+  </tr>
+  <tr>
+    <td><strong>Файл понад 10 MB</strong></td>
+    <td>Викладач пробує завантажити велике відео як матеріал</td>
+    <td><code>validate_file_size_10mb</code> повертає <code>ValidationError</code>. Серіалізатор повертає 400 з повідомленням «Максимальний розмір файлу — 10MB». Файл не зберігається.</td>
+  </tr>
+  <tr>
+    <td><strong>Слухач не записаний на курс</strong></td>
+    <td>Пробує здати тест курсу, на який не записався</td>
+    <td><code>SubmitTestView</code> перевіряє <code>CourseEnrollment.exists()</code> → 403 Forbidden з повідомленням «Ви не записані на цей курс».</td>
+  </tr>
+  <tr>
+    <td><strong>Перевищено 3 спроби</strong></td>
+    <td>Слухач здає тест 4-й раз</td>
+    <td><code>TestResult.count() &gt;= 3</code> → 400 Bad Request з повідомленням «Ви вичерпали кількість спроб». Записати результат не дозволяє.</td>
+  </tr>
+  <tr>
+    <td><strong>Студент пробує редагувати чужий курс</strong></td>
+    <td>PATCH /api/courses/5/ від юзера, який не власник</td>
+    <td><code>IsOwnerOrAdmin</code> перевіряє <code>obj.teacher == request.user</code> → 403 Forbidden. Запис не оновлюється.</td>
+  </tr>
+  <tr>
+    <td><strong>Реєстрація як admin</strong></td>
+    <td>Зловмисник передає <code>{"role": "admin"}</code> в /api/auth/register/</td>
+    <td><code>RegisterSerializer.validate_role</code> ловить → ValidationError «Неможливо зареєструватися як адміністратор». Тільки існуючий адмін може видати цю роль.</td>
+  </tr>
+  <tr>
+    <td><strong>CORS-помилка</strong></td>
+    <td>Запит з чужого сайту (наприклад, evil.com) до nexlearn API</td>
+    <td>Backend не додає <code>Access-Control-Allow-Origin</code>, бо origin не в <code>CORS_ALLOWED_ORIGINS</code>. Браузер блокує відповідь. Запит фактично пройшов, але JS не може прочитати результат.</td>
+  </tr>
+  <tr>
+    <td><strong>Supabase недоступний</strong></td>
+    <td>Database connection timeout</td>
+    <td>Django ORM кидає <code>OperationalError</code>. DRF загортає у 500 Internal Server Error. Frontend показує «Сервер тимчасово недоступний». Конкретний запит провалюється, інші теж — нічого не працює.</td>
+  </tr>
+  <tr>
+    <td><strong>Дублювання запису на курс</strong></td>
+    <td>Слухач натискає «Записатися» двічі швидко</td>
+    <td><code>get_or_create</code> створює тільки один запис. Другий виклик повертає 400 «Ви вже записані на цей курс».</td>
+  </tr>
+  <tr>
+    <td><strong>Невалідний JSON</strong></td>
+    <td>Frontend надсилає поламаний JSON (баг)</td>
+    <td>DRF parser повертає 400 Bad Request з описом проблеми парсингу.</td>
+  </tr>
+  <tr>
+    <td><strong>Втрата refresh-токена через ротацію</strong></td>
+    <td>Юзер відкрив сайт у двох вкладках, обидві оновлюють токен одночасно</td>
+    <td>Перша вкладка отримує новий refresh, друга з потім старий — старий вже в blacklist → 401. Друга вкладка робить логаут. (Для бойового — можна зберігати tokens в одному джерелі через BroadcastChannel API.)</td>
+  </tr>
+  <tr>
+    <td><strong>SQL Injection</strong></td>
+    <td>Зловмисник передає <code>'; DROP TABLE users; --</code> у поле</td>
+    <td>Django ORM використовує параметризовані запити — текст не виконується як SQL. Просто зберігається як рядок (або відхиляється валідацією).</td>
+  </tr>
+  <tr>
+    <td><strong>XSS-атака</strong></td>
+    <td>Юзер у коментарі пише <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code></td>
+    <td>React за замовчуванням екранує текст. Скрипт відображається як текст, не виконується. Плюс CSP блокує inline-скрипти.</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 8: РОДМАП РОЗВИТКУ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Родмап розвитку проекту</h1>
+<p>Ідеї та плани на майбутнє — що можна додати для покращення NexLearn.</p>
+
+<h2>🟢 Короткострокові (легко додати)</h2>
+<table>
+  <tr><th style="width:30%">Фіча</th><th>Опис</th><th style="width:18%">Де</th></tr>
+  <tr>
+    <td><strong>Темна тема</strong></td>
+    <td>Toggle у профілі. Зберігати у localStorage. Tailwind має <code>dark:</code> модифікатор</td>
+    <td>Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Email-підтвердження</strong></td>
+    <td>При реєстрації — лист з посиланням. Активація акаунта тільки після кліку</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Скидання пароля</strong></td>
+    <td>«Забули пароль?» → email з токеном → форма нового пароля</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Прогрес-бар тесту</strong></td>
+    <td>Показувати «Запитання 3 з 10» і таймер до завершення</td>
+    <td>Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Сортування і фільтри курсів</strong></td>
+    <td>За рейтингом, датою, кількістю слухачів. Фільтр за категорією</td>
+    <td>Backend + Frontend</td>
+  </tr>
+</table>
+
+<h2>🟡 Середньострокові (потребують роботи)</h2>
+<table>
+  <tr><th style="width:30%">Фіча</th><th>Опис</th><th style="width:18%">Де</th></tr>
+  <tr>
+    <td><strong>S3 / Cloudinary для файлів</strong></td>
+    <td>Замість локального media/ — django-storages з S3. Файли переживуть рестарт контейнера</td>
+    <td>Backend</td>
+  </tr>
+  <tr>
+    <td><strong>Категорії курсів</strong></td>
+    <td>Окрема модель Category, ManyToMany з Course. Фільтрація і навігація</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Розширені типи запитань</strong></td>
+    <td>Multiple choice (декілька правильних), Open answer (текст), True/False</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Часові обмеження тесту (server-side)</strong></td>
+    <td>Зараз time_limit тільки в UI. Додати на бекенді: фіксувати started_at, відкидати submit після ліміту</td>
+    <td>Backend</td>
+  </tr>
+  <tr>
+    <td><strong>Прогрес курсу візуально</strong></td>
+    <td>Шкала «3 із 5 тестів пройдено». Бейджи за етапи</td>
+    <td>Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Чат викладач-слухач</strong></td>
+    <td>Особисті повідомлення в курсі. Через WebSockets або polling</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Аналітика для викладача</strong></td>
+    <td>Дашборд: середній бал по тестам, найскладніше запитання, графік активності</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Експорт сертифіката на бекенді</strong></td>
+    <td>Замість jsPDF — Django + WeasyPrint → красиві PDF з шрифтами і підписами</td>
+    <td>Backend</td>
+  </tr>
+</table>
+
+<h2>🔴 Довгострокові (великі проекти)</h2>
+<table>
+  <tr><th style="width:30%">Фіча</th><th>Опис</th><th style="width:18%">Де</th></tr>
+  <tr>
+    <td><strong>Відео-уроки</strong></td>
+    <td>Завантаження відео + плеер з контролем перегляду. HLS-стрімінг через Cloudflare</td>
+    <td>Frontend + Backend</td>
+  </tr>
+  <tr>
+    <td><strong>Платні курси</strong></td>
+    <td>Інтеграція з LiqPay / Stripe. Платіжні плани, підписки. Доступ після оплати</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Мобільний додаток</strong></td>
+    <td>React Native або Flutter. Push-сповіщення про нові курси, тести, результати</td>
+    <td>Новий проект</td>
+  </tr>
+  <tr>
+    <td><strong>AI-помічник</strong></td>
+    <td>GPT для генерації запитань тесту по матеріалу курсу. Аналіз відкритих відповідей</td>
+    <td>Backend</td>
+  </tr>
+  <tr>
+    <td><strong>Live-вебінари</strong></td>
+    <td>Інтеграція з Zoom/Jitsi. Розклад вебінарів у курсі. Автоматичні нагадування</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Геймифікація</strong></td>
+    <td>Бейджи, рівні, лідерборди, рейтинги слухачів за активністю</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Багатомовність</strong></td>
+    <td>Інтерфейс UA/EN/RU. Курси з перекладами. Django i18n + Next.js i18n</td>
+    <td>Backend + Frontend</td>
+  </tr>
+  <tr>
+    <td><strong>Інтеграція з SCORM</strong></td>
+    <td>Імпорт навчального контенту в стандарті SCORM (важливо для корпоративного навчання)</td>
+    <td>Backend</td>
+  </tr>
+</table>
+
+<h2>Пріоритети</h2>
+<table>
+  <tr><th>Пріоритет</th><th>Фічі</th><th>Чому</th></tr>
+  <tr>
+    <td><strong>🔥 Високий</strong></td>
+    <td>Скидання пароля, email-підтвердження, S3 для файлів</td>
+    <td>Базові вимоги для production. Без них — критичні баги при масштабуванні</td>
+  </tr>
+  <tr>
+    <td><strong>⚡ Середній</strong></td>
+    <td>Розширені типи запитань, чат, категорії, аналітика</td>
+    <td>Покращують UX, конкурентоспроможність на ринку онлайн-навчання</td>
+  </tr>
+  <tr>
+    <td><strong>💡 Низький</strong></td>
+    <td>Відео-уроки, AI, мобільний додаток, SCORM</td>
+    <td>Великі проекти з окремим бюджетом і командою</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 9: СХЕМА БЕЗПЕКИ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Шари безпеки — від зовнішнього до внутрішнього</h1>
+<p>Система захищена на кожному рівні, як цибуля — кожен шар додає свій захист.</p>
+
+<div class="mermaid">
+graph TD
+    INTERNET["🌍 Інтернет — зовнішній світ"]
+
+    INTERNET --> L1["🔒 Шар 1: HTTPS + HSTS"]
+    L1 --> L2["🛡️ Шар 2: CORS + CSP"]
+    L2 --> L3["⏱️ Шар 3: Rate-limit"]
+    L3 --> L4["🔑 Шар 4: JWT-автентифікація"]
+    L4 --> L5["👮 Шар 5: Авторизація ролей"]
+    L5 --> L6["🔐 Шар 6: Хешування + ORM"]
+    L6 --> DATA["💎 Дані користувачів"]
+
+    style INTERNET fill:#fef3c7,stroke:#f59e0b,color:#000
+    style L1 fill:#dcfce7,stroke:#22c55e,color:#000
+    style L2 fill:#dbeafe,stroke:#3b82f6,color:#000
+    style L3 fill:#fce7f3,stroke:#ec4899,color:#000
+    style L4 fill:#e0e7ff,stroke:#6366f1,color:#000
+    style L5 fill:#fef9c3,stroke:#eab308,color:#000
+    style L6 fill:#fee2e2,stroke:#ef4444,color:#000
+    style DATA fill:#f0fdf4,stroke:#16a34a,color:#000
+
+    linkStyle 0 stroke:#22c55e,stroke-width:3px
+    linkStyle 1 stroke:#3b82f6,stroke-width:3px
+    linkStyle 2 stroke:#ec4899,stroke-width:3px
+    linkStyle 3 stroke:#6366f1,stroke-width:3px
+    linkStyle 4 stroke:#eab308,stroke-width:3px
+    linkStyle 5 stroke:#ef4444,stroke-width:3px
+</div>
+
+<h2>Деталі кожного шару</h2>
+
+<table>
+  <tr>
+    <th style="width:8%">#</th>
+    <th style="width:22%">Шар</th>
+    <th>Що захищає</th>
+    <th>Як працює</th>
+  </tr>
+  <tr>
+    <td><strong>1</strong></td>
+    <td><strong>HTTPS + HSTS</strong></td>
+    <td>Весь трафік між браузером і серверами</td>
+    <td>TLS-шифрування — ніхто не може прочитати запити. <strong>HSTS</strong>: браузер примусово використовує HTTPS на 1 рік. Vercel і Railway надають автоматично.</td>
+  </tr>
+  <tr>
+    <td><strong>2</strong></td>
+    <td><strong>CORS + CSP</strong></td>
+    <td>Захист від чужих сайтів і XSS</td>
+    <td><strong>CORS</strong>: backend дозволяє запити тільки з <code>nexlearn.space</code>. <strong>CSP</strong>: frontend забороняє чужі скрипти, дозволяє тільки <code>self</code> і API URL.</td>
+  </tr>
+  <tr>
+    <td><strong>3</strong></td>
+    <td><strong>Rate-limit</strong></td>
+    <td>Захист від спаму і брутфорса</td>
+    <td>django-ratelimit: <code>login = 5/m per IP</code>, <code>register = 3/m per IP</code>. Блокування в кеші Django (LocMemCache).</td>
+  </tr>
+  <tr>
+    <td><strong>4</strong></td>
+    <td><strong>JWT-автентифікація</strong></td>
+    <td>Підтвердження особи на кожному запиті</td>
+    <td>Access-токен (60 хв) + refresh (7 днів). Підпис HMAC-SHA256 з SECRET_KEY. Ротація + blacklist при оновленні. Без токена → 401.</td>
+  </tr>
+  <tr>
+    <td><strong>5</strong></td>
+    <td><strong>Авторизація ролей</strong></td>
+    <td>Хто що може робити</td>
+    <td><strong>Слухач</strong>: дивитися курси, складати тести. <strong>Викладач</strong>: + створювати свої курси. <strong>Адмін</strong>: + усе. Перевірка через DRF Permissions на кожному view.</td>
+  </tr>
+  <tr>
+    <td><strong>6</strong></td>
+    <td><strong>Хешування + ORM</strong></td>
+    <td>Захист збережених даних</td>
+    <td><strong>Паролі</strong>: PBKDF2-SHA256 (Django default). <strong>SQL Injection</strong>: захист через Django ORM (параметризовані запити). <strong>UUID</strong>: для номерів сертифікатів — неможливо вгадати.</td>
+  </tr>
+</table>
+
+<h2>Захист JWT-флоу</h2>
+<div class="mermaid">
+graph TD
+    USER["👤 Користувач"] --> LOGIN["POST /api/auth/login/"]
+    LOGIN --> RL{"Rate-limit<br/>5/m per IP"}
+    RL -->|перевищено| BLOCK["🚫 429 Too Many Requests"]
+    RL -->|ОК| AUTH{"Перевірка пароля"}
+    AUTH -->|невірний| BAD["❌ 401 Unauthorized"]
+    AUTH -->|вірний| TOKENS["🎫 access (60хв)<br/>+ refresh (7д)"]
+    TOKENS --> LS["💼 localStorage"]
+    LS --> REQ["Запит з Bearer-токеном"]
+    REQ --> VERIFY{"Перевірка JWT<br/>підпис + expiry"}
+    VERIFY -->|expired| REFRESH["POST /api/auth/refresh/"]
+    REFRESH --> ROTATE["🔄 Новий refresh<br/>+ blacklist старого"]
+    ROTATE --> LS
+    VERIFY -->|valid| PERM{"Permission<br/>IsAdmin / IsTeacher / IsAuth"}
+    PERM -->|недостатньо прав| FORBID["🚫 403 Forbidden"]
+    PERM -->|OK| ACCESS["✅ Виконати запит"]
+
+    style USER fill:#dbeafe,stroke:#3b82f6,color:#000
+    style BLOCK fill:#fee2e2,stroke:#ef4444,color:#000
+    style BAD fill:#fee2e2,stroke:#ef4444,color:#000
+    style FORBID fill:#fee2e2,stroke:#ef4444,color:#000
+    style ACCESS fill:#dcfce7,stroke:#22c55e,color:#000
+    style TOKENS fill:#fef9c3,stroke:#eab308,color:#000
+    style ROTATE fill:#e0e7ff,stroke:#6366f1,color:#000
+
+    linkStyle 0 stroke:#3b82f6,stroke-width:2px
+    linkStyle 1 stroke:#ec4899,stroke-width:2px
+    linkStyle 2 stroke:#ef4444,stroke-width:2px
+    linkStyle 3 stroke:#22c55e,stroke-width:2px
+    linkStyle 4 stroke:#ef4444,stroke-width:2px
+    linkStyle 5 stroke:#22c55e,stroke-width:2px
+    linkStyle 6 stroke:#fbbf24,stroke-width:2px
+    linkStyle 7 stroke:#3b82f6,stroke-width:2px
+    linkStyle 8 stroke:#a78bfa,stroke-width:2px
+    linkStyle 9 stroke:#fbbf24,stroke-width:2px
+    linkStyle 10 stroke:#6366f1,stroke-width:2px
+    linkStyle 11 stroke:#fbbf24,stroke-width:2px
+    linkStyle 12 stroke:#22c55e,stroke-width:2px
+    linkStyle 13 stroke:#ef4444,stroke-width:2px
+    linkStyle 14 stroke:#22c55e,stroke-width:2px
+</div>
+
+<h2>Що захищено і чим — підсумок</h2>
+<table>
+  <tr><th>Що</th><th>Загроза</th><th>Захист</th></tr>
+  <tr><td><strong>Паролі в БД</strong></td><td>Витік дампа</td><td>PBKDF2-SHA256 (Django default) — підбір одного пароля = місяці</td></tr>
+  <tr><td><strong>JWT-токени</strong></td><td>Перехоплення</td><td>HTTPS + короткий TTL access (60 хв) + ротація refresh + blacklist</td></tr>
+  <tr><td><strong>Реєстрація як admin</strong></td><td>Привілейована атака</td><td><code>RegisterSerializer.validate_role</code> блокує admin-роль</td></tr>
+  <tr><td><strong>API-ендпоінти</strong></td><td>Спам / брутфорс</td><td>django-ratelimit per IP + per endpoint</td></tr>
+  <tr><td><strong>Чужі курси</strong></td><td>Несанкціоноване редагування</td><td>IsOwnerOrAdmin перевіряє <code>obj.teacher == request.user</code></td></tr>
+  <tr><td><strong>Шахрайство в тесті</strong></td><td>Підглядання правильних відповідей</td><td>Окремий serializer без correct_answer для слухачів</td></tr>
+  <tr><td><strong>Дублювання сертифікатів</strong></td><td>Юзер пробує отримати декілька сертифікатів</td><td><code>unique_together = ['student', 'course']</code> + <code>get_or_create</code></td></tr>
+  <tr><td><strong>SQL Injection</strong></td><td>Виконання чужого SQL</td><td>Django ORM (параметризовані запити)</td></tr>
+  <tr><td><strong>XSS-атаки</strong></td><td>Вставка чужого JS у коментарі</td><td>React екранує текст + CSP блокує inline-скрипти</td></tr>
+  <tr><td><strong>CSRF</strong></td><td>Запити з чужого сайту</td><td>JWT-only API (немає cookie-сесії), CORS allowlist</td></tr>
+  <tr><td><strong>Clickjacking</strong></td><td>Вбудовування сайту в iframe</td><td>X-Frame-Options: DENY</td></tr>
+  <tr><td><strong>Великі файли</strong></td><td>DDoS через uploads</td><td>Validators (2MB аватар, 10MB матеріал)</td></tr>
+  <tr><td><strong>Чужий доступ до /api/users/</strong></td><td>Перегляд усіх юзерів</td><td>IsAdmin permission + secret URL для admin-панелі</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 10: ER-ДІАГРАМА БАЗИ ДАНИХ -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>ER-діаграма бази даних</h1>
+<p>Повна схема моделей з полями, типами і зв'язками між таблицями PostgreSQL (Supabase).</p>
+
+<div class="mermaid">
+erDiagram
+    USER {
+        int id PK
+        string username UK
+        string email
+        string password "PBKDF2-SHA256"
+        string role "admin | teacher | student"
+        string phone
+        text bio
+        string avatar "media/avatars/"
+        datetime date_joined
+    }
+
+    COURSE {
+        int id PK
+        string title
+        text description
+        int teacher_id FK
+        string status "draft | published"
+        datetime created_at
+        datetime updated_at
+    }
+
+    COURSE_MATERIAL {
+        int id PK
+        int course_id FK
+        string title
+        file file "media/materials/ max 10MB"
+        datetime uploaded_at
+    }
+
+    COURSE_ENROLLMENT {
+        int id PK
+        int course_id FK
+        int student_id FK
+        datetime enrolled_at
+    }
+
+    COURSE_COMMENT {
+        int id PK
+        int course_id FK
+        int author_id FK
+        text text
+        datetime created_at
+    }
+
+    COURSE_RATING {
+        int id PK
+        int course_id FK
+        int student_id FK
+        int score "1-5"
+        datetime created_at
+    }
+
+    TEST {
+        int id PK
+        int course_id FK
+        string title
+        text description
+        int passing_score "default 60%"
+        int time_limit "хвилини, 0=без"
+        datetime created_at
+    }
+
+    TEST_QUESTION {
+        int id PK
+        int test_id FK
+        text question_text
+        json options "масив рядків"
+        int correct_answer "індекс 0-N"
+        int order
+    }
+
+    TEST_RESULT {
+        int id PK
+        int student_id FK
+        int test_id FK
+        int score "0-100%"
+        bool passed
+        json answers "масив індексів"
+        datetime completed_at
+    }
+
+    CERTIFICATE {
+        int id PK
+        int student_id FK
+        int course_id FK
+        uuid certificate_number UK
+        datetime issued_at
+    }
+
+    USER ||--o{ COURSE : "teacher створює"
+    USER ||--o{ COURSE_ENROLLMENT : "student записується"
+    USER ||--o{ COURSE_COMMENT : "author пише"
+    USER ||--o{ COURSE_RATING : "student оцінює"
+    USER ||--o{ TEST_RESULT : "student складає"
+    USER ||--o{ CERTIFICATE : "student отримує"
+
+    COURSE ||--o{ COURSE_MATERIAL : "має матеріали"
+    COURSE ||--o{ COURSE_ENROLLMENT : "має записи"
+    COURSE ||--o{ COURSE_COMMENT : "має коментарі"
+    COURSE ||--o{ COURSE_RATING : "має оцінки"
+    COURSE ||--o{ TEST : "має тести"
+    COURSE ||--o{ CERTIFICATE : "видає сертифікати"
+
+    TEST ||--o{ TEST_QUESTION : "містить запитання"
+    TEST ||--o{ TEST_RESULT : "має результати"
+</div>
+
+<h3>Обмеження цілісності (constraints)</h3>
+<table>
+  <tr><th>Таблиця</th><th>Constraint</th><th>Що забезпечує</th></tr>
+  <tr><td><code>CourseEnrollment</code></td><td><code>unique_together: [course, student]</code></td><td>Студент записується на курс тільки один раз</td></tr>
+  <tr><td><code>CourseRating</code></td><td><code>unique_together: [course, student]</code></td><td>Одна оцінка на курс від студента</td></tr>
+  <tr><td><code>Certificate</code></td><td><code>unique_together: [student, course]</code></td><td>Один сертифікат на курс для студента</td></tr>
+  <tr><td><code>Certificate</code></td><td><code>certificate_number: unique UUID</code></td><td>Унікальний номер кожного сертифіката</td></tr>
+  <tr><td><code>TestResult</code></td><td><code>idx_result_student_test</code></td><td>Індекс для швидкого пошуку спроб студента</td></tr>
+  <tr><td><code>TestResult</code></td><td><code>idx_result_student_passed</code></td><td>Індекс для фільтрації успішних спроб</td></tr>
+  <tr><td><code>Course.status</code></td><td><code>db_index=True</code></td><td>Швидка фільтрація published/draft</td></tr>
+</table>
+
+<h3>Каскадне видалення</h3>
+<p>Усі зовнішні ключі мають <code>on_delete=CASCADE</code>:</p>
+<ul>
+  <li>Видалення <strong>User</strong> → видаляються його курси, записи, коментарі, оцінки, результати, сертифікати</li>
+  <li>Видалення <strong>Course</strong> → видаляються матеріали, записи, коментарі, оцінки, тести, сертифікати курсу</li>
+  <li>Видалення <strong>Test</strong> → видаляються запитання і результати тесту</li>
+</ul>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 11: MIDDLEWARE PIPELINE -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Middleware Pipeline — обробка запиту</h1>
+<p>Кожен HTTP-запит проходить через ланцюжок middleware у точному порядку. Відповідь проходить у зворотному порядку.</p>
+
+<div class="mermaid">
+graph TD
+    REQ["📨 HTTP-запит від браузера"] --> MW1
+    MW1["1. SecurityMiddleware<br/>HTTPS redirect, HSTS"] --> MW2
+    MW2["2. WhiteNoiseMiddleware<br/>Статика Django Admin"] --> MW3
+    MW3["3. GZipMiddleware<br/>Стиснення відповідей"] --> MW4
+    MW4["4. CorsMiddleware<br/>CORS-заголовки"] --> MW5
+    MW5["5. SessionMiddleware<br/>Сесії для Django Admin"] --> MW6
+    MW6["6. CommonMiddleware<br/>URL-нормалізація"] --> MW7
+    MW7["7. CsrfViewMiddleware<br/>CSRF для Django Admin"] --> MW8
+    MW8["8. AuthenticationMiddleware<br/>Django session auth"] --> MW9
+    MW9["9. MessageMiddleware<br/>Flash-повідомлення"] --> MW10
+    MW10["10. XFrameOptionsMiddleware<br/>X-Frame-Options: DENY"] --> VIEW
+    VIEW["⚙️ Django View<br/>+ JWTAuthentication<br/>+ Permission Classes"] --> RESP
+    RESP["📤 HTTP-відповідь"]
+
+    style REQ fill:#dbeafe,stroke:#3b82f6,color:#000
+    style MW4 fill:#fef9c3,stroke:#eab308,color:#000
+    style VIEW fill:#dcfce7,stroke:#22c55e,color:#000
+    style RESP fill:#e0e7ff,stroke:#6366f1,color:#000
+</div>
+
+<h3>Деталі middleware</h3>
+<table>
+  <tr><th>#</th><th>Middleware</th><th>Що робить</th><th>Для API чи Admin?</th></tr>
+  <tr><td><strong>1</strong></td><td><code>SecurityMiddleware</code></td><td>HTTPS redirect (<code>SECURE_SSL_REDIRECT</code>), HSTS заголовок (1 рік), <code>X-Content-Type-Options: nosniff</code></td><td>Обидва</td></tr>
+  <tr><td><strong>2</strong></td><td><code>WhiteNoiseMiddleware</code></td><td>Віддає статичні файли Django Admin (CSS, JS) без Nginx. Стискає + кешує</td><td>Тільки Admin</td></tr>
+  <tr><td><strong>3</strong></td><td><code>GZipMiddleware</code></td><td>Стискає JSON-відповіді (gzip). Економить трафік на 60-80%</td><td>Обидва</td></tr>
+  <tr><td><strong>4</strong></td><td><code>CorsMiddleware</code></td><td>Додає <code>Access-Control-Allow-Origin</code> для дозволених origin. Блокує запити з чужих сайтів</td><td>Тільки API</td></tr>
+  <tr><td><strong>5</strong></td><td><code>SessionMiddleware</code></td><td>Керує сесіями. Для API не використовується (JWT-only), але потрібен для Django Admin</td><td>Тільки Admin</td></tr>
+  <tr><td><strong>6</strong></td><td><code>CommonMiddleware</code></td><td>Нормалізація URL (trailing slash), заборона доступу до прихованих файлів</td><td>Обидва</td></tr>
+  <tr><td><strong>7</strong></td><td><code>CsrfViewMiddleware</code></td><td>CSRF-захист для форм Django Admin. Для API відключено (JWT)</td><td>Тільки Admin</td></tr>
+  <tr><td><strong>8</strong></td><td><code>AuthenticationMiddleware</code></td><td>Заповнює <code>request.user</code> зі сесії. Для API — JWTAuthentication робить це окремо</td><td>Тільки Admin</td></tr>
+  <tr><td><strong>9</strong></td><td><code>MessageMiddleware</code></td><td>Flash-повідомлення типу «Курс успішно створено» для Django Admin</td><td>Тільки Admin</td></tr>
+  <tr><td><strong>10</strong></td><td><code>XFrameOptionsMiddleware</code></td><td><code>X-Frame-Options: DENY</code> — забороняє вставку в iframe</td><td>Обидва</td></tr>
+</table>
+
+<h3>Порядок для API-запиту (типовий GET /api/courses/)</h3>
+<pre><code>Браузер → HTTPS → GZip → CORS ✓ → (Session skip) → (CSRF skip)
+    → URL Router → CourseListView
+        → JWTAuthentication (Bearer token → request.user)
+        → IsAuthenticated permission ✓
+        → QuerySet + Serializer → JSON
+    ← GZip стискає → CORS-заголовки → Браузер</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 12: КОНФІГУРАЦІЯ DJANGO -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Конфігурація Django — config/settings.py</h1>
+<p>Повний розбір ключових налаштувань з поясненнями чому обрано саме такі значення.</p>
+
+<h2>REST Framework</h2>
+<pre><code>REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # за замовчуванням — авторизовані
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,  # по 20 записів на сторінку
+}</code></pre>
+<table>
+  <tr><th>Параметр</th><th>Чому так</th></tr>
+  <tr><td><code>JWTAuthentication</code></td><td>Stateless — не потрібен Redis/сесії. Масштабується горизонтально</td></tr>
+  <tr><td><code>IsAuthenticated</code></td><td>Безпечний default: відкриті ендпоінти треба явно позначити <code>AllowAny</code></td></tr>
+  <tr><td><code>PAGE_SIZE = 20</code></td><td>Оптимально для мобільних екранів. Не надто багато — не надто мало</td></tr>
+</table>
+
+<h2>SimpleJWT</h2>
+<pre><code>SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),   # 1 година
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),      # 1 тиждень
+    'ROTATE_REFRESH_TOKENS': True,                    # видавати новий refresh при оновленні
+    'BLACKLIST_AFTER_ROTATION': True,                 # старий refresh — в чорний список
+    'AUTH_HEADER_TYPES': ('Bearer',),                 # Authorization: Bearer <token>
+}</code></pre>
+<table>
+  <tr><th>Параметр</th><th>Значення</th><th>Чому</th></tr>
+  <tr><td>Access lifetime</td><td>60 хв</td><td>Достатньо для тесту (до 30 хв) + запас. Не занадто довго для безпеки</td></tr>
+  <tr><td>Refresh lifetime</td><td>7 днів</td><td>Юзер не перелогінюється кожен день. Після тижня — знову логін</td></tr>
+  <tr><td>Rotation</td><td>True</td><td>Кожне оновлення = новий refresh. Крадій має одну спробу</td></tr>
+  <tr><td>Blacklist</td><td>True</td><td>Старий refresh більше не працює — навіть якщо його вкрали</td></tr>
+</table>
+
+<h2>CORS</h2>
+<pre><code>CORS_ALLOWED_ORIGINS = ['https://nexlearn.space']  # тільки наш фронтенд
+CORS_ALLOW_CREDENTIALS = True                       # дозволити cookies (для Django Admin)
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+CORS_ALLOW_HEADERS = ['accept', 'authorization', 'content-type',
+                      'origin', 'x-requested-with']</code></pre>
+
+<h2>Безпека в production</h2>
+<pre><code># Активується тільки коли DEBUG = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # за проксі Railway
+SECURE_SSL_REDIRECT = False   # Railway сам робить redirect
+SECURE_HSTS_SECONDS = 31536000  # HSTS на 1 рік
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SESSION_COOKIE_SECURE = True   # Cookie тільки через HTTPS
+CSRF_COOKIE_SECURE = True      # CSRF-cookie тільки через HTTPS</code></pre>
+
+<h2>Файли і ліміти</h2>
+<table>
+  <tr><th>Параметр</th><th>Значення</th><th>Що обмежує</th></tr>
+  <tr><td><code>DATA_UPLOAD_MAX_MEMORY_SIZE</code></td><td>10 MB</td><td>Максимальний розмір тіла POST-запиту</td></tr>
+  <tr><td><code>FILE_UPLOAD_MAX_MEMORY_SIZE</code></td><td>10 MB</td><td>Максимальний розмір файлу в пам'яті (більше → тимчасовий файл)</td></tr>
+  <tr><td><code>MEDIA_ROOT</code></td><td><code>backend/media/</code></td><td>Директорія для завантажених файлів</td></tr>
+  <tr><td><code>STATIC_ROOT</code></td><td><code>backend/staticfiles/</code></td><td>Директорія для collectstatic (WhiteNoise)</td></tr>
+  <tr><td><code>CONN_MAX_AGE</code></td><td>600 сек</td><td>Повторне використання з'єднання з БД (10 хв)</td></tr>
+</table>
+
+<h2>Логування</h2>
+<pre><code>LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',          # Усі логи рівня INFO і вище
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',    # Тільки помилки запитів (не кожен 200 OK)
+            'propagate': False,
+        },
+    },
+}</code></pre>
+<p>Формат логу: <code>[2026-05-07 12:34:56] WARNING django.request Not Found: /api/courses/999/</code></p>
+<p>Railway / Render автоматично збирає stdout і показує у своїй консолі.</p>
+
+<h2>Installed Apps — порядок і залежності</h2>
+<table>
+  <tr><th>Додаток</th><th>Тип</th><th>Що дає</th></tr>
+  <tr><td><code>django.contrib.admin</code></td><td>Django</td><td>Вбудована адмін-панель</td></tr>
+  <tr><td><code>django.contrib.auth</code></td><td>Django</td><td>Користувачі, групи, дозволи</td></tr>
+  <tr><td><code>django.contrib.contenttypes</code></td><td>Django</td><td>Підтримка generic relations</td></tr>
+  <tr><td><code>django.contrib.sessions</code></td><td>Django</td><td>Сесії для Django Admin</td></tr>
+  <tr><td><code>django.contrib.messages</code></td><td>Django</td><td>Flash-повідомлення</td></tr>
+  <tr><td><code>django.contrib.staticfiles</code></td><td>Django</td><td>Збірка і роздача статичних файлів</td></tr>
+  <tr><td><code>rest_framework</code></td><td>Third-party</td><td>DRF — REST API</td></tr>
+  <tr><td><code>rest_framework_simplejwt</code></td><td>Third-party</td><td>JWT-автентифікація</td></tr>
+  <tr><td><code>corsheaders</code></td><td>Third-party</td><td>CORS-заголовки</td></tr>
+  <tr><td><code>rest_framework_simplejwt.token_blacklist</code></td><td>Third-party</td><td>Чорний список refresh-токенів</td></tr>
+  <tr><td><code>apps.users</code></td><td>Проектний</td><td>Кастомний User, реєстрація, логін</td></tr>
+  <tr><td><code>apps.courses</code></td><td>Проектний</td><td>Курси, матеріали, записи, коментарі, оцінки</td></tr>
+  <tr><td><code>apps.tests_module</code></td><td>Проектний</td><td>Тести, запитання, результати</td></tr>
+  <tr><td><code>apps.certificates</code></td><td>Проектний</td><td>Сертифікати з UUID</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- ЧАСТИНА 13: ПІДСУМОК -->
+<!-- ============================================================ -->
+
+<div class="page-break"></div>
+
+<h1>Підсумок проекту</h1>
+
+<h2>Що було створено</h2>
+<p><strong>NexLearn</strong> — повноцінна веб-орієнтована інформаційна система для центрів підвищення кваліфікації, яка охоплює весь цикл навчання: від створення курсу викладачем до отримання сертифіката слухачем.</p>
+
+<h2>Архітектурні рішення</h2>
+<table>
+  <tr><th style="width:30%">Рішення</th><th>Обґрунтування</th></tr>
+  <tr><td><strong>Розділення Frontend/Backend</strong></td><td>Незалежний деплой, різні команди, масштабування кожної частини окремо</td></tr>
+  <tr><td><strong>REST API + JWT</strong></td><td>Stateless — кожен запит самодостатній, горизонтальне масштабування без сесій</td></tr>
+  <tr><td><strong>Next.js для фронтенду</strong></td><td>SSR для SEO, App Router для зручної маршрутизації, Vercel для безкоштовного хостингу</td></tr>
+  <tr><td><strong>Django + DRF для бекенду</strong></td><td>«Батарейки в комплекті»: ORM, admin, auth, permissions — менше коду, більше безпеки</td></tr>
+  <tr><td><strong>PostgreSQL на Supabase</strong></td><td>Надійна реляційна БД з безкоштовним планом, автобекапи, SSL, connection pooling</td></tr>
+  <tr><td><strong>JWT-ротація з blacklist</strong></td><td>Компроміс між UX (не перелогінюватися) і безпекою (обмежений час життя)</td></tr>
+  <tr><td><strong>jsPDF для сертифікатів</strong></td><td>Генерація PDF у браузері — бекенд не витрачає CPU, не потрібні серверні шрифти</td></tr>
+  <tr><td><strong>Безкоштовний хостинг</strong></td><td>Vercel + Railway/Render + Supabase = 0 ₴ на початковому етапі</td></tr>
+</table>
+
+<h2>Технологічний стек — підсумок</h2>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">Next.js 16</div>
+    <div class="stat-label">Frontend фреймворк</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">Django 6</div>
+    <div class="stat-label">Backend фреймворк</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">PostgreSQL</div>
+    <div class="stat-label">База даних</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">JWT</div>
+    <div class="stat-label">Автентифікація</div>
+  </div>
+</div>
+
+<h2>Кількісні показники</h2>
+<table>
+  <tr><th style="width:40%">Метрика</th><th>Значення</th></tr>
+  <tr><td>Ролі користувачів</td><td>3 (admin, teacher, student)</td></tr>
+  <tr><td>Django-додатки</td><td>4 (users, courses, tests_module, certificates)</td></tr>
+  <tr><td>Моделей даних</td><td>10 таблиць у PostgreSQL</td></tr>
+  <tr><td>API-ендпоінтів</td><td>21 (5 auth + 2 users + 12 courses + 7 tests + 2 certificates)</td></tr>
+  <tr><td>Сторінок фронтенду</td><td>9 (лендінг + auth + dashboard pages)</td></tr>
+  <tr><td>Зовнішні сервіси</td><td>3 (Vercel, Railway/Render, Supabase)</td></tr>
+  <tr><td>Мови програмування</td><td>2 (Python 3.12, TypeScript)</td></tr>
+  <tr><td>Шарів безпеки</td><td>6 (HTTPS → CORS → Rate-limit → JWT → Roles → Hashing)</td></tr>
+  <tr><td>Вартість хостингу</td><td>0 ₴ (безкоштовні плани)</td></tr>
+</table>
+
+<h2>Що забезпечує система</h2>
+<ul>
+  <li><strong>Створення і публікація курсів</strong> — викладачі наповнюють контент, додають матеріали, публікують</li>
+  <li><strong>Запис на курси</strong> — слухачі обирають курси, записуються, отримують доступ до матеріалів</li>
+  <li><strong>Тестування знань</strong> — створення тестів з автоперевіркою, лімітом спроб і часу</li>
+  <li><strong>Видача сертифікатів</strong> — автоматично при проходженні тесту, PDF-генерація у браузері</li>
+  <li><strong>Оцінювання курсів</strong> — рейтинг 1-5 зірок + коментарі від слухачів</li>
+  <li><strong>Управління користувачами</strong> — адмін змінює ролі, бачить всіх юзерів</li>
+  <li><strong>Захист даних</strong> — 6 шарів безпеки від зовнішнього світу до бази даних</li>
+  <li><strong>Експорт результатів</strong> — CSV-звіти для викладачів і адмінів</li>
+</ul>
+
+<h2>Готовність до масштабування</h2>
+<table>
+  <tr><th>Що</th><th>Поточний стан</th><th>Що потрібно для масштабу</th></tr>
+  <tr><td><strong>Файли</strong></td><td>Локальний диск (ефемерний)</td><td>S3 / Cloudinary через <code>django-storages</code></td></tr>
+  <tr><td><strong>Кеш</strong></td><td><code>LocMemCache</code> (в пам'яті процесу)</td><td>Redis для розподіленого кешу</td></tr>
+  <tr><td><strong>База даних</strong></td><td>Supabase Free (500 MB)</td><td>Supabase Pro або RDS для навантажень</td></tr>
+  <tr><td><strong>Backend</strong></td><td>Один gunicorn-контейнер</td><td>Горизонтальне масштабування (JWT stateless)</td></tr>
+  <tr><td><strong>Frontend</strong></td><td>Vercel CDN (глобальний)</td><td>Вже масштабований через Edge Network</td></tr>
+</table>
+
+<hr>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+</script>
+
+</body>
+</html>
