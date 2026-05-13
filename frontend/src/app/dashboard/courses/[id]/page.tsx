@@ -151,16 +151,16 @@ export default function CourseDetailPage() {
       ]} />
 
       <Card>
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl font-bold">{course.title}</h1>
+            <h1 className="text-2xl font-bold break-words">{course.title}</h1>
             {teacher && (
               <p className="text-sm text-neutral-500 mt-1">
                 Викладач: {teacher.first_name} {teacher.last_name}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant={course.status === 'published' ? 'success' : 'default'}>
               {course.status === 'published' ? 'Опубліковано' : 'Чернетка'}
             </Badge>

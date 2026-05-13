@@ -189,17 +189,17 @@ export default function TestDetailPage() {
         ]} />
 
         <Card className="mb-4">
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-2xl font-bold">{test.title}</h1>
+              <h1 className="text-2xl font-bold break-words">{test.title}</h1>
               <p className="text-sm text-neutral-500 mt-1">{test.course_title}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {hasPassed && (
                 <Badge variant="success">Пройдено ✓</Badge>
               )}
               {(user?.role === 'admin' || user?.role === 'teacher') && (
-                <div className="flex items-center gap-2 ml-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Link href={`/dashboard/tests/${id}/edit`}>
                     <Button variant="outline" size="sm">
                       <Pencil size={14} />
