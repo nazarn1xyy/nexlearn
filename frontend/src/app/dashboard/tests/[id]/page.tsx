@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft, CheckCircle, XCircle, Clock, Award, AlertTriangle,
-  Play, FileText, Target, RotateCcw, Trophy,
+  Play, FileText, Target, RotateCcw, Trophy, Pencil, Trash2,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -193,9 +193,33 @@ export default function TestDetailPage() {
               <h1 className="text-2xl font-bold">{test.title}</h1>
               <p className="text-sm text-neutral-500 mt-1">{test.course_title}</p>
             </div>
-            {hasPassed && (
-              <Badge variant="success">Пройдено ✓</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {hasPassed && (
+                <Badge variant="success">Пройдено ✓</Badge>
+              )}
+              {(user?.role === 'admin' || user?.role === 'teacher') && (
+                <div className="flex items-center gap-2 ml-2">
+                  <Link href={`/dashboard/tests/${id}/edit`}>
+                    <Button variant="outline" size="sm">
+                      <Pencil size={14} />
+                      Редагувати
+                    </Button>
+                  </Link>
+                  <Button variant="danger" size="sm" onClick={async () => {
+                    if (!confirm('Видалити цей тест?')) return;
+                    try {
+                      await api.delete(`/api/tests/${id}/`);
+                      router.push('/dashboard/tests');
+                    } catch {
+                      alert('Помилка видалення');
+                    }
+                  }}>
+                    <Trash2 size={14} />
+                    Видалити
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           {test.description && (

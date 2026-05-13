@@ -60,6 +60,21 @@ class TestCreateSerializer(serializers.ModelSerializer):
             TestQuestion.objects.create(test=test, **q_data)
         return test
 
+    def update(self, instance, validated_data):
+        questions_data = validated_data.pop('questions', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if questions_data is not None:
+            instance.questions.all().delete()
+            for i, q_data in enumerate(questions_data):
+                q_data['order'] = i
+                TestQuestion.objects.create(test=instance, **q_data)
+                
+        return instance
+
 
 class SubmitTestSerializer(serializers.Serializer):
     answers = serializers.ListField(

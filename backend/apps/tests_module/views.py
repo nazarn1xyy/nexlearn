@@ -40,14 +40,21 @@ class TestListCreateView(generics.ListCreateAPIView):
         return qs
 
 
-class TestDetailView(generics.RetrieveAPIView):
+class TestDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Test.objects.select_related('course').prefetch_related('questions')
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
+        if self.request.method in ('PUT', 'PATCH'):
+            return TestCreateSerializer
         if self.request.user.role in ('teacher', 'admin'):
             return TestDetailSerializer
         return TestStudentDetailSerializer
+
+    def get_permissions(self):
+        if self.request.method in ('PUT', 'PATCH', 'DELETE'):
+            return [permissions.IsAuthenticated(), IsTeacherOrAdmin()]
+        return [permissions.IsAuthenticated()]
 
 
 from django.utils.decorators import method_decorator
