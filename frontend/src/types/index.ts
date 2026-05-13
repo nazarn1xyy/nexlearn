@@ -69,9 +69,11 @@ export interface Test {
 
 export interface TestQuestion {
   id: number;
+  question_type: 'single' | 'multiple' | 'text';
   question_text: string;
   options: string[];
-  correct_answer?: number;
+  correct_answer?: number | null;
+  correct_answers?: any[];
   order: number;
 }
 
@@ -82,7 +84,7 @@ export interface TestResult {
   test_title?: string;
   score: number;
   passed: boolean;
-  answers: number[];
+  answers: any[];
   completed_at: string;
 }
 

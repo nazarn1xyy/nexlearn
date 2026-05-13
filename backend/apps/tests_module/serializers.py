@@ -6,13 +6,13 @@ from apps.users.serializers import UserListSerializer
 class TestQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestQuestion
-        fields = ['id', 'question_text', 'options', 'correct_answer', 'order']
+        fields = ['id', 'question_text', 'options', 'correct_answer', 'correct_answers', 'question_type', 'order']
 
 
 class TestQuestionStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestQuestion
-        fields = ['id', 'question_text', 'options', 'order']
+        fields = ['id', 'question_text', 'options', 'question_type', 'order']
 
 
 class TestListSerializer(serializers.ModelSerializer):
@@ -78,8 +78,7 @@ class TestCreateSerializer(serializers.ModelSerializer):
 
 class SubmitTestSerializer(serializers.Serializer):
     answers = serializers.ListField(
-        child=serializers.IntegerField(min_value=0),
-        help_text='Масив індексів обраних відповідей',
+        help_text='Масив відповідей (індекси, масиви індексів, або текст)',
     )
 
 

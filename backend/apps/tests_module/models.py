@@ -39,6 +39,17 @@ class TestQuestion(models.Model):
         related_name='questions',
         verbose_name='Тест',
     )
+    QUESTION_TYPES = [
+        ('single', 'Одна правильна відповідь'),
+        ('multiple', 'Кілька правильних відповідей'),
+        ('text', 'Текстова відповідь'),
+    ]
+    question_type = models.CharField(
+        max_length=20, 
+        choices=QUESTION_TYPES, 
+        default='single',
+        verbose_name='Тип питання'
+    )
     question_text = models.TextField(verbose_name='Запитання')
     options = models.JSONField(
         verbose_name='Варіанти відповідей',
@@ -46,7 +57,14 @@ class TestQuestion(models.Model):
     )
     correct_answer = models.PositiveIntegerField(
         verbose_name='Індекс правильної відповіді',
-        help_text='Індекс (починаючи з 0) правильного варіанту',
+        help_text='Індекс (починаючи з 0) правильного варіанту (для single)',
+        null=True, blank=True
+    )
+    correct_answers = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Правильні відповіді',
+        help_text='Масив правильних відповідей (індекси для multiple, рядки для text)'
     )
     order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
 

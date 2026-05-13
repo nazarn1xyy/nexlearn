@@ -100,10 +100,27 @@ class SubmitTestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        correct = sum(
-            1 for q, a in zip(questions, answers)
-            if a == q.correct_answer
-        )
+        correct = 0
+        for q, a in zip(questions, answers):
+            if q.question_type == 'single':
+                try:
+                    if int(a) == q.correct_answer:
+                        correct += 1
+                except (ValueError, TypeError):
+                    pass
+            elif q.question_type == 'multiple':
+                try:
+                    user_ans = sorted([int(x) for x in a])
+                    correct_ans = sorted([int(x) for x in q.correct_answers])
+                    if user_ans == correct_ans:
+                        correct += 1
+                except (ValueError, TypeError):
+                    pass
+            elif q.question_type == 'text':
+                user_ans = str(a).strip().lower()
+                correct_ans = [str(x).strip().lower() for x in q.correct_answers]
+                if user_ans in correct_ans:
+                    correct += 1
         total = len(questions)
         score = round((correct / total) * 100) if total > 0 else 0
         passed = score >= test.passing_score

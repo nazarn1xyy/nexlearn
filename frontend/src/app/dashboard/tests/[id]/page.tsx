@@ -32,7 +32,7 @@ export default function TestDetailPage() {
   const [test, setTest] = useState<Test | null>(null);
   const [isEnrolled, setIsEnrolled] = useState(true);
   const [previousResults, setPreviousResults] = useState<TestResult[]>([]);
-  const [answers, setAnswers] = useState<number[]>([]);
+  const [answers, setAnswers] = useState<any[]>([]);
   const [result, setResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -78,7 +78,12 @@ export default function TestDetailPage() {
 
   const startTest = () => {
     if (!test) return;
-    setAnswers(new Array(test.questions?.length ?? 0).fill(-1));
+    setAnswers(test.questions?.map(q => {
+      if (q.question_type === 'multiple') return [];
+      if (q.question_type === 'text') return '';
+      return -1;
+    }) || []);
+    setPageState('testing');
     autoSubmitted.current = false;
     setResult(null);
     setError('');
@@ -87,7 +92,24 @@ export default function TestDetailPage() {
     } else {
       setTimeLeft(null);
     }
-    setPageState('testing');
+  };
+
+  const handleAnswer = (qIndex: number, value: any) => {
+    setAnswers((prev) => {
+      const next = [...prev];
+      const q = test?.questions?.[qIndex];
+      if (q?.question_type === 'multiple') {
+        const current = next[qIndex] as number[];
+        if (current.includes(value)) {
+          next[qIndex] = current.filter(v => v !== value);
+        } else {
+          next[qIndex] = [...current, value];
+        }
+      } else {
+        next[qIndex] = value;
+      }
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -102,13 +124,7 @@ export default function TestDetailPage() {
     return () => clearInterval(timer);
   }, [pageState, timeLeft, result]);
 
-  const handleAnswer = (qIndex: number, optIndex: number) => {
-    setAnswers((prev) => {
-      const copy = [...prev];
-      copy[qIndex] = optIndex;
-      return copy;
-    });
-  };
+
 
   const handleSubmit = useCallback(async () => {
     if (submitting) return;
@@ -319,7 +335,12 @@ export default function TestDetailPage() {
   }
 
   /* ─── Testing Screen ─── */
-  const allAnswered = answers.every((a) => a >= 0);
+  const allAnswered = answers.every((a, i) => {
+    const q = test?.questions?.[i];
+    if (q?.question_type === 'multiple') return Array.isArray(a) && a.length > 0;
+    if (q?.question_type === 'text') return typeof a === 'string' && a.trim() !== '';
+    return a >= 0;
+  });
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -354,21 +375,47 @@ export default function TestDetailPage() {
               {qIndex + 1}. <Latex>{q.question_text}</Latex>
             </p>
             <div className="flex flex-col gap-2">
-              {q.options.map((option, optIndex) => (
-                <button
-                  key={optIndex}
-                  onClick={() => handleAnswer(qIndex, optIndex)}
-                  className={`
-                    text-left px-4 py-3 rounded-lg border text-sm transition-colors
-                    ${answers[qIndex] === optIndex
-                      ? 'border-black bg-black text-white'
-                      : 'border-neutral-200 hover:border-neutral-400'
-                    }
-                  `}
-                >
-                  <Latex>{option}</Latex>
-                </button>
-              ))}
+              {q.question_type === 'text' ? (
+                <input
+                  type="text"
+                  value={answers[qIndex] as string}
+                  onChange={(e) => handleAnswer(qIndex, e.target.value)}
+                  className="w-full p-3 border border-neutral-300 rounded-lg focus:outline-none focus:border-black"
+                  placeholder="Введіть вашу відповідь..."
+                />
+              ) : (
+                q.options.map((option, optIndex) => {
+                  const isSelected = q.question_type === 'multiple'
+                    ? (answers[qIndex] as number[])?.includes(optIndex)
+                    : answers[qIndex] === optIndex;
+
+                  return (
+                    <button
+                      key={optIndex}
+                      onClick={() => handleAnswer(qIndex, optIndex)}
+                      className={`
+                        text-left px-4 py-3 rounded-lg border text-sm transition-colors
+                        ${isSelected
+                          ? 'border-black bg-black text-white'
+                          : 'border-neutral-200 hover:border-neutral-400'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 border flex items-center justify-center shrink-0
+                          ${q.question_type === 'multiple' ? 'rounded' : 'rounded-full'}
+                          ${isSelected ? 'border-white' : 'border-neutral-300'}
+                        `}>
+                          {isSelected && (
+                            <div className={`w-2.5 h-2.5 bg-white ${q.question_type === 'multiple' ? 'rounded-[2px]' : 'rounded-full'}`} />
+                          )}
+                        </div>
+                        <div><Latex>{option}</Latex></div>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </Card>
         ))}

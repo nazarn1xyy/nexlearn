@@ -13,9 +13,11 @@ import Card from '@/components/ui/Card';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 interface QuestionForm {
+  question_type: 'single' | 'multiple' | 'text';
   question_text: string;
   options: string[];
-  correct_answer: number;
+  correct_answer: number | null;
+  correct_answers: any[];
 }
 
 export default function EditTestPage() {
@@ -52,9 +54,11 @@ export default function EditTestPage() {
           time_limit: test.time_limit,
         });
         setQuestions(test.questions.map((q: any) => ({
+          question_type: q.question_type || 'single',
           question_text: q.question_text,
           options: q.options,
           correct_answer: q.correct_answer,
+          correct_answers: q.correct_answers || [],
         })));
       } catch {
         router.push('/dashboard/tests');
@@ -68,7 +72,7 @@ export default function EditTestPage() {
   const addQuestion = () => {
     setQuestions((prev) => [
       ...prev,
-      { question_text: '', options: ['', '', '', ''], correct_answer: 0 },
+      { question_type: 'single', question_text: '', options: ['', '', '', ''], correct_answer: 0, correct_answers: [] },
     ]);
   };
 
@@ -77,10 +81,16 @@ export default function EditTestPage() {
     setQuestions((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateQuestion = (index: number, field: string, value: string | number) => {
-    setQuestions((prev) =>
-      prev.map((q, i) => (i === index ? { ...q, [field]: value } : q))
-    );
+  const updateQuestion = (index: number, field: keyof QuestionForm, value: any) => {
+    setQuestions((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      if (field === 'question_type') {
+        if (value === 'single') copy[index].correct_answer = 0;
+        else copy[index].correct_answer = null;
+      }
+      return copy;
+    });
   };
 
   const updateOption = (qIndex: number, optIndex: number, value: string) => {
@@ -191,6 +201,19 @@ export default function EditTestPage() {
               )}
             </div>
 
+            <div className="mb-3">
+              <Select
+                label="Тип питання"
+                value={q.question_type}
+                onChange={(e) => updateQuestion(qIndex, 'question_type', e.target.value)}
+                options={[
+                  { value: 'single', label: 'Одна правильна відповідь' },
+                  { value: 'multiple', label: 'Кілька правильних відповідей' },
+                  { value: 'text', label: 'Текстова відповідь' },
+                ]}
+              />
+            </div>
+
             <Textarea
               label="Текст запитання"
               value={q.question_text}
@@ -198,28 +221,55 @@ export default function EditTestPage() {
               required
             />
 
-            <div className="mt-3 flex flex-col gap-2">
-              {q.options.map((opt, optIndex) => (
-                <div key={optIndex} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`correct-${qIndex}`}
-                    checked={q.correct_answer === optIndex}
-                    onChange={() => updateQuestion(qIndex, 'correct_answer', optIndex)}
-                    className="accent-black"
-                  />
-                  <input
-                    type="text"
-                    value={opt}
-                    onChange={(e) => updateOption(qIndex, optIndex, e.target.value)}
-                    placeholder={`Варіант ${optIndex + 1}`}
-                    className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm
-                      focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                    required
-                  />
-                </div>
-              ))}
-            </div>
+            {q.question_type !== 'text' && (
+              <div className="mt-3 flex flex-col gap-2">
+                {q.options.map((opt, optIndex) => (
+                  <div key={optIndex} className="flex items-center gap-2">
+                    {q.question_type === 'single' ? (
+                      <input
+                        type="radio"
+                        name={`correct-${qIndex}`}
+                        checked={q.correct_answer === optIndex}
+                        onChange={() => updateQuestion(qIndex, 'correct_answer', optIndex)}
+                        className="accent-black"
+                      />
+                    ) : (
+                      <input
+                        type="checkbox"
+                        checked={q.correct_answers.includes(optIndex)}
+                        onChange={(e) => {
+                          const current = q.correct_answers as number[];
+                          const newAnswers = e.target.checked
+                            ? [...current, optIndex]
+                            : current.filter((i) => i !== optIndex);
+                          updateQuestion(qIndex, 'correct_answers', newAnswers);
+                        }}
+                        className="accent-black rounded"
+                      />
+                    )}
+                    <input
+                      type="text"
+                      value={opt}
+                      onChange={(e) => updateOption(qIndex, optIndex, e.target.value)}
+                      placeholder={`Варіант ${optIndex + 1}`}
+                      className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm
+                        focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                      required={q.question_type !== 'text'}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            {q.question_type === 'text' && (
+              <div className="mt-3">
+                <Input
+                  label="Правильна відповідь"
+                  value={(q.correct_answers[0] || '') as string}
+                  onChange={(e) => updateQuestion(qIndex, 'correct_answers', [e.target.value])}
+                  required
+                />
+              </div>
+            )}
           </Card>
         ))}
 
