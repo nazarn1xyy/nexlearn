@@ -14,6 +14,8 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
+import 'katex/dist/katex.min.css';
+import Latex from 'react-latex-next';
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -349,7 +351,7 @@ export default function TestDetailPage() {
         {test.questions?.map((q, qIndex) => (
           <Card key={q.id}>
             <p className="font-medium mb-3">
-              {qIndex + 1}. {q.question_text}
+              {qIndex + 1}. <Latex>{q.question_text}</Latex>
             </p>
             <div className="flex flex-col gap-2">
               {q.options.map((option, optIndex) => (
@@ -364,7 +366,7 @@ export default function TestDetailPage() {
                     }
                   `}
                 >
-                  {option}
+                  <Latex>{option}</Latex>
                 </button>
               ))}
             </div>
