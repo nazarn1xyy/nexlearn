@@ -50,9 +50,13 @@ class TestDetailView(generics.RetrieveAPIView):
         return TestStudentDetailSerializer
 
 
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
+
 class SubmitTestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @method_decorator(ratelimit(key='user', rate='5/m', method='POST', block=True))
     def post(self, request, pk):
         try:
             test = Test.objects.prefetch_related('questions').get(pk=pk)

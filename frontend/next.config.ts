@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+});
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const apiHostname = new URL(apiUrl).hostname;
 const apiProtocol = new URL(apiUrl).protocol.replace(':', '') as 'http' | 'https';
@@ -48,4 +53,4 @@ const nextConfig: NextConfig = {
   ],
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

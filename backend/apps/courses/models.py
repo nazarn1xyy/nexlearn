@@ -3,9 +3,25 @@ from django.db import models
 from django.conf import settings
 
 
-def validate_file_size_10mb(value):
+import os
+import filetype
+
+def validate_safe_file_10mb(value):
     if value.size > 10 * 1024 * 1024:
         raise ValidationError('Максимальний розмір файлу — 10MB.')
+        
+    ext = os.path.splitext(value.name)[1].lower()
+    dangerous_exts = ['.html', '.htm', '.js', '.exe', '.sh', '.php', '.py', '.svg']
+    if ext in dangerous_exts:
+        raise ValidationError('Завантаження скриптів або виконуваних файлів заборонено.')
+        
+    kind = filetype.guess(value.read(2048))
+    value.seek(0)
+    
+    # Якщо файл розпізнаний filetype, перевіряємо, щоб це не був виконуваний файл
+    if kind is not None:
+        if kind.mime.startswith('application/x-executable') or kind.mime.startswith('text/html'):
+            raise ValidationError('Цей тип файлу заборонено з міркувань безпеки.')
 
 
 class Course(models.Model):
@@ -48,7 +64,7 @@ class CourseMaterial(models.Model):
         verbose_name='Курс',
     )
     title = models.CharField(max_length=255, verbose_name='Назва')
-    file = models.FileField(upload_to='materials/', verbose_name='Файл', validators=[validate_file_size_10mb])
+    file = models.FileField(upload_to='materials/', verbose_name='Файл', validators=[validate_safe_file_10mb])
     uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='Завантажено')
 
     class Meta:
