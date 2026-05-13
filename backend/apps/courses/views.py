@@ -10,6 +10,7 @@ from .serializers import (
     CourseMaterialSerializer, EnrollmentSerializer,
     CourseCommentSerializer, CourseRatingSerializer,
 )
+from apps.tests_module.models import Test, TestResult
 
 
 class IsTeacherOrAdmin(permissions.BasePermission):
@@ -195,4 +196,69 @@ class CourseRateView(APIView):
             'score': rating.score,
             'avg_rating': round(avg['avg'], 1) if avg['avg'] else 0,
             'ratings_count': avg['count'],
+        })
+
+class CourseAnalyticsView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsTeacherOrAdmin]
+
+    def get(self, request, pk):
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return Response({'detail': 'Курс не знайдено'}, status=404)
+
+        if course.teacher != request.user and request.user.role != 'admin':
+            return Response({'detail': 'У вас немає доступу до аналітики цього курсу'}, status=403)
+
+        enrollments = CourseEnrollment.objects.filter(course=course).select_related('student')
+        tests = Test.objects.filter(course=course)
+        total_tests = tests.count()
+
+        students_data = []
+        total_course_progress = 0
+
+        for enrollment in enrollments:
+            passed_tests = TestResult.objects.filter(
+                student=enrollment.student,
+                test__course=course,
+                passed=True
+            ).values('test').distinct().count()
+            
+            progress = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+            total_course_progress += progress
+            
+            students_data.append({
+                'id': enrollment.student.id,
+                'name': f"{enrollment.student.first_name} {enrollment.student.last_name}",
+                'email': enrollment.student.email,
+                'progress': round(progress, 1),
+                'passed_tests': passed_tests,
+                'enrolled_at': enrollment.enrolled_at
+            })
+
+        avg_course_progress = (total_course_progress / enrollments.count()) if enrollments.exists() else 0
+
+        tests_data = []
+        for test in tests:
+            results = TestResult.objects.filter(test=test)
+            total_attempts = results.count()
+            passed_attempts = results.filter(passed=True).count()
+            avg_score = results.aggregate(avg=db_models.Avg('score'))['avg'] or 0
+
+            pass_rate = (passed_attempts / total_attempts * 100) if total_attempts > 0 else 0
+
+            tests_data.append({
+                'id': test.id,
+                'title': test.title,
+                'total_attempts': total_attempts,
+                'pass_rate': round(pass_rate, 1),
+                'avg_score': round(avg_score, 1),
+            })
+
+        return Response({
+            'course_title': course.title,
+            'total_students': enrollments.count(),
+            'avg_course_progress': round(avg_course_progress, 1),
+            'students': students_data,
+            'tests': tests_data
         })

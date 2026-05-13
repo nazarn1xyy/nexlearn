@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2, ClipboardCheck, Clock, CheckCircle } from 'lucide-react';
+import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2, ClipboardCheck, Clock, CheckCircle, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
@@ -166,6 +166,12 @@ export default function CourseDetailPage() {
             </Badge>
             {canManage && (
               <>
+                <Link href={`/dashboard/courses/${id}/analytics`}>
+                  <Button variant="outline" size="sm">
+                    <BarChart3 size={14} />
+                    Аналітика
+                  </Button>
+                </Link>
                 <Link href={`/dashboard/courses/${id}/edit`}>
                   <Button variant="outline" size="sm">
                     <Pencil size={14} />

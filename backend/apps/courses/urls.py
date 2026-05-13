@@ -3,7 +3,7 @@ from .views import (
     CourseListCreateView, CourseDetailView,
     CourseEnrollView, CourseMaterialListCreateView,
     CourseProgressView, CourseCommentListCreateView,
-    CourseRateView,
+    CourseRateView, CourseAnalyticsView,
 )
 
 urlpatterns = [
@@ -14,4 +14,5 @@ urlpatterns = [
     path('<int:pk>/progress/', CourseProgressView.as_view(), name='course-progress'),
     path('<int:pk>/comments/', CourseCommentListCreateView.as_view(), name='course-comments'),
     path('<int:pk>/rate/', CourseRateView.as_view(), name='course-rate'),
+    path('<int:pk>/analytics/', CourseAnalyticsView.as_view(), name='course-analytics'),
 ]
