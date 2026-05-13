@@ -96,6 +96,9 @@ class CourseEnrollment(models.Model):
         verbose_name_plural = 'Записи на курси'
         unique_together = ['course', 'student']
         ordering = ['-enrolled_at']
+        indexes = [
+            models.Index(fields=['student', 'course'], name='idx_enroll_student_course'),
+        ]
 
     def __str__(self):
         return f'{self.student} → {self.course}'

@@ -5,17 +5,15 @@ from django.db import models
 
 import filetype
 
-def validate_image_file(max_mb):
-    def validator(value):
-        if value.size > max_mb * 1024 * 1024:
-            raise ValidationError(f'Максимальний розмір файлу — {max_mb}MB.')
-        
-        kind = filetype.guess(value.read(2048))
-        value.seek(0)
-        
-        if kind is None or not kind.mime.startswith('image/'):
-            raise ValidationError('Дозволені лише зображення (JPEG, PNG, WebP тощо).')
-    return validator
+def validate_image_file(value):
+    if value.size > 2 * 1024 * 1024:
+        raise ValidationError('Максимальний розмір файлу — 2MB.')
+    
+    kind = filetype.guess(value.read(2048))
+    value.seek(0)
+    
+    if kind is None or not kind.mime.startswith('image/'):
+        raise ValidationError('Дозволені лише зображення (JPEG, PNG, WebP тощо).')
 
 
 class User(AbstractUser):
@@ -32,7 +30,7 @@ class User(AbstractUser):
     )
     phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
     bio = models.TextField(blank=True, verbose_name='Про себе')
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар', validators=[validate_image_file(2)])
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name='Аватар', validators=[validate_image_file])
 
     class Meta:
         verbose_name = 'Користувач'

@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
       { protocol: apiProtocol, hostname: apiHostname, ...(apiPort && { port: apiPort }) },
     ],
   },
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+    },
+  },
   headers: async () => [
     {
       source: '/:path*',
