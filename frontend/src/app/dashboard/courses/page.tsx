@@ -81,13 +81,38 @@ export default function CoursesPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin h-6 w-6 border-2 border-black border-t-transparent rounded-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="h-48 flex flex-col justify-between">
+              <div>
+                <div className="h-6 bg-neutral-200 dark:bg-neutral-800 animate-pulse rounded-md w-3/4 mb-4"></div>
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-full mb-2"></div>
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-5/6"></div>
+              </div>
+              <div className="flex justify-between mt-4 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-1/4"></div>
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-1/4"></div>
+              </div>
+            </Card>
+          ))}
         </div>
       ) : courses.length === 0 ? (
-        <Card className="text-center py-12">
-          <BookOpen size={40} className="mx-auto text-neutral-300 mb-3" />
-          <p className="text-neutral-500">Курсів поки немає</p>
+        <Card className="text-center py-16 flex flex-col items-center justify-center border-dashed border-2 bg-neutral-50/50 dark:bg-neutral-900/50">
+          <div className="w-16 h-16 bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex items-center justify-center mb-5">
+            <BookOpen size={32} className="text-neutral-400" />
+          </div>
+          <h3 className="text-xl font-bold mb-2">Курсів не знайдено</h3>
+          <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            Схоже, за вашим запитом немає жодного курсу. {canCreate ? "Створіть новий курс просто зараз, щоб студенти могли навчатися." : "Зачекайте, поки викладачі опублікують нові матеріали."}
+          </p>
+          {canCreate && (
+            <Link href="/dashboard/courses/create">
+              <Button>
+                <Plus size={16} />
+                Створити курс
+              </Button>
+            </Link>
+          )}
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

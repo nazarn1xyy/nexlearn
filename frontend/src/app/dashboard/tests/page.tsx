@@ -74,13 +74,40 @@ export default function TestsPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin h-6 w-6 border-2 border-black border-t-transparent rounded-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="h-40 flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between mb-3">
+                  <div className="h-6 bg-neutral-200 dark:bg-neutral-800 animate-pulse rounded-md w-2/3"></div>
+                  <div className="h-5 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-full w-16"></div>
+                </div>
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-1/2 mb-4"></div>
+              </div>
+              <div className="flex justify-between border-t border-neutral-100 dark:border-neutral-800 pt-3">
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-1/3"></div>
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800/50 animate-pulse rounded-md w-1/4"></div>
+              </div>
+            </Card>
+          ))}
         </div>
       ) : tests.length === 0 ? (
-        <Card className="text-center py-12">
-          <ClipboardCheck size={40} className="mx-auto text-neutral-300 mb-3" />
-          <p className="text-neutral-500">Тестів поки немає</p>
+        <Card className="text-center py-16 flex flex-col items-center justify-center border-dashed border-2 bg-neutral-50/50 dark:bg-neutral-900/50">
+          <div className="w-16 h-16 bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex items-center justify-center mb-5">
+            <ClipboardCheck size={32} className="text-neutral-400" />
+          </div>
+          <h3 className="text-xl font-bold mb-2">Тестів не знайдено</h3>
+          <p className="text-neutral-500 max-w-md mx-auto mb-6">
+            Поки що тут порожньо. {canCreate ? "Створіть свій перший тест для перевірки знань слухачів." : "Зачекайте, поки викладачі створять нові тести."}
+          </p>
+          {canCreate && (
+            <Link href="/dashboard/tests/create">
+              <Button>
+                <Plus size={16} />
+                Створити тест
+              </Button>
+            </Link>
+          )}
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
