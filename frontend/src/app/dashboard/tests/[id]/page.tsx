@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   ArrowLeft, CheckCircle, XCircle, Clock, Award, AlertTriangle,
   Play, FileText, Target, RotateCcw, Trophy, Pencil, Trash2,
