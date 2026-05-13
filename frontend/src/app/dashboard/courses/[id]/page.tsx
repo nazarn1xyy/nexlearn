@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2 } from 'lucide-react';
+import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2, ClipboardCheck, Clock, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
-import type { Course, CourseComment } from '@/types';
+import type { Course, CourseComment, Test } from '@/types';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -38,6 +38,9 @@ export default function CourseDetailPage() {
   const [avgRating, setAvgRating] = useState(0);
   const [ratingsCount, setRatingsCount] = useState(0);
 
+  const [tests, setTests] = useState<Test[]>([]);
+  const [myResults, setMyResults] = useState<Record<number, any>>({});
+
   const fetchComments = useCallback(async () => {
     try {
       const { data } = await api.get(`/api/courses/${id}/comments/`);
@@ -50,6 +53,16 @@ export default function CourseDetailPage() {
       try {
         const { data } = await api.get(`/api/courses/${id}/`);
         setCourse(data);
+
+        const [testsRes, resultsRes] = await Promise.all([
+          api.get(`/api/tests/?course=${id}&page_size=100`),
+          api.get('/api/tests/my-results/'),
+        ]);
+        setTests(testsRes.data.results ?? testsRes.data);
+        const map: Record<number, any> = {};
+        resultsRes.data.forEach((r: any) => { map[r.test_id] = r; });
+        setMyResults(map);
+
         if (data.is_enrolled) {
           const { data: prog } = await api.get(`/api/courses/${id}/progress/`);
           setProgress(prog);
@@ -256,6 +269,48 @@ export default function CourseDetailPage() {
                 </a>
               </div>
             ))}
+          </div>
+        </Card>
+      )}
+
+      {tests.length > 0 && (
+        <Card className="mt-4">
+          <div className="flex items-center gap-2 mb-4">
+            <ClipboardCheck size={20} />
+            <h2 className="text-lg font-semibold">Тести курсу</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {tests.map((test) => {
+              const result = myResults[test.id];
+              return (
+                <Link key={test.id} href={`/dashboard/tests/${test.id}`}>
+                  <div className={`p-4 rounded-xl border transition-all hover:shadow-md cursor-pointer ${
+                    result?.passed ? 'border-green-300 bg-green-50/50 dark:bg-green-900/10' : 'border-neutral-200 hover:border-black dark:border-neutral-800 dark:hover:border-neutral-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-sm line-clamp-1">{test.title}</h3>
+                      {result?.passed ? (
+                        <Badge variant="success"><CheckCircle size={12} className="inline mr-1" />Пройдено</Badge>
+                      ) : result ? (
+                        <Badge variant="warning">Не пройдено</Badge>
+                      ) : null}
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-neutral-500">
+                      <span>{test.questions_count ?? 0} питань</span>
+                      {(test.time_limit ?? 0) > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} />
+                          {test.time_limit} хв
+                        </span>
+                      )}
+                      {result && (
+                        <span>Спроб: {result.attempts}/3</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </Card>
       )}
