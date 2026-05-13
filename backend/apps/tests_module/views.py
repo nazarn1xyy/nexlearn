@@ -123,10 +123,11 @@ class ExportTestResultsView(APIView):
 
         results = TestResult.objects.filter(test_id=pk).select_related('student', 'test')
 
-        response = HttpResponse(content_type='text/csv')
+        response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
         response['Content-Disposition'] = f'attachment; filename="test_{pk}_results.csv"'
+        response.write('\ufeff')
 
-        writer = csv.writer(response)
+        writer = csv.writer(response, delimiter=';')
         writer.writerow(['Слухач', 'Email', 'Бал (%)', 'Пройдено', 'Дата'])
 
         for r in results:

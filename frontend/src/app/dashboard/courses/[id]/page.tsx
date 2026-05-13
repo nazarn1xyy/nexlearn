@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, UserPlus, FileText, Award, TrendingUp, Send } from 'lucide-react';
+import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
 import type { Course, CourseComment } from '@/types';
@@ -31,6 +32,7 @@ export default function CourseDetailPage() {
   const [comments, setComments] = useState<CourseComment[]>([]);
   const [commentText, setCommentText] = useState('');
   const [sendingComment, setSendingComment] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [myRating, setMyRating] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
@@ -109,6 +111,24 @@ export default function CourseDetailPage() {
   const displayAvg = avgRating || course.avg_rating || 0;
   const displayCount = ratingsCount || course.ratings_count || 0;
 
+  const canManage =
+    user?.role === 'admin' ||
+    (user?.role === 'teacher' &&
+      (teacher ? teacher.id === user?.id : false));
+
+  const handleDelete = async () => {
+    if (!confirm('Ви впевнені, що хочете видалити цей курс? Цю дію неможливо скасувати.')) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/api/courses/${id}/`);
+      router.push('/dashboard/courses');
+    } catch {
+      alert('Помилка видалення курсу');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
       <Breadcrumbs items={[
@@ -127,9 +147,25 @@ export default function CourseDetailPage() {
               </p>
             )}
           </div>
-          <Badge variant={course.status === 'published' ? 'success' : 'default'}>
-            {course.status === 'published' ? 'Опубліковано' : 'Чернетка'}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={course.status === 'published' ? 'success' : 'default'}>
+              {course.status === 'published' ? 'Опубліковано' : 'Чернетка'}
+            </Badge>
+            {canManage && (
+              <>
+                <Link href={`/dashboard/courses/${id}/edit`}>
+                  <Button variant="outline" size="sm">
+                    <Pencil size={14} />
+                    Редагувати
+                  </Button>
+                </Link>
+                <Button variant="danger" size="sm" onClick={handleDelete} loading={deleting}>
+                  <Trash2 size={14} />
+                  Видалити
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         <p className="text-neutral-700 mb-6">{course.description}</p>
