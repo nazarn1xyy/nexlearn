@@ -21,37 +21,36 @@ interface ResultSummary {
   passed: boolean;
 }
 
+import useSWR from 'swr';
+
 export default function TestsPage() {
   const { user } = useAuth();
-  const [tests, setTests] = useState<Test[]>([]);
-  const [myResults, setMyResults] = useState<Record<number, ResultSummary>>({});
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const pageSize = 9;
 
-  useEffect(() => {
-    async function fetch() {
-      setLoading(true);
-      try {
-        const [testsRes, resultsRes] = await Promise.all([
-          api.get(`/api/tests/?page=${page}&page_size=${pageSize}`),
-          api.get('/api/tests/my-results/'),
-        ]);
-        setTests(testsRes.data.results ?? testsRes.data);
-        setTotalCount(testsRes.data.count ?? 0);
-        const results: ResultSummary[] = resultsRes.data;
-        const map: Record<number, ResultSummary> = {};
-        results.forEach((r) => { map[r.test_id] = r; });
-        setMyResults(map);
-      } catch {
-        // API not available
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetch();
-  }, [page]);
+  const fetcher = async () => {
+    const [testsRes, resultsRes] = await Promise.all([
+      api.get(`/api/tests/?page=${page}&page_size=${pageSize}`),
+      api.get('/api/tests/my-results/'),
+    ]);
+    const results: ResultSummary[] = resultsRes.data;
+    const map: Record<number, ResultSummary> = {};
+    results.forEach((r) => { map[r.test_id] = r; });
+    return {
+      tests: testsRes.data.results ?? testsRes.data,
+      count: testsRes.data.count ?? 0,
+      myResults: map,
+    };
+  };
+
+  const { data, isLoading } = useSWR(`/api/tests-page-${page}`, fetcher, {
+    keepPreviousData: true,
+  });
+
+  const tests: Test[] = data?.tests ?? [];
+  const totalCount: number = data?.count ?? 0;
+  const myResults: Record<number, ResultSummary> = data?.myResults ?? {};
+  const loading = isLoading && !data;
 
   const canCreate = user?.role === 'teacher' || user?.role === 'admin';
 

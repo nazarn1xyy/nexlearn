@@ -7,6 +7,8 @@ import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
 import Card from '@/components/ui/Card';
 
+import useSWR from 'swr';
+
 interface Stats {
   courses: number;
   tests: number;
@@ -16,36 +18,34 @@ interface Stats {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [stats, setStats] = useState<Stats | null>(null);
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const requests: Promise<{ data: { count?: number; results?: unknown[] } }>[] = [
-          api.get('/api/courses/?page_size=1'),
-          api.get('/api/tests/?page_size=1'),
-          api.get('/api/certificates/?page_size=1'),
-        ];
-        if (user?.role === 'admin') {
-          requests.push(api.get('/api/users/?page_size=1'));
-        }
-        const results = await Promise.all(requests);
-        const count = (r: { data: { count?: number; results?: unknown[] } }) =>
-          r.data.count ?? r.data.results?.length ?? 0;
-        setStats({
-          courses: count(results[0]),
-          tests: count(results[1]),
-          certificates: count(results[2]),
-          users: results[3] ? count(results[3]) : 0,
-        });
-      } catch {
-        setStats({ courses: 0, tests: 0, certificates: 0, users: 0 });
-      }
+  
+  const fetchStats = async () => {
+    const requests: Promise<{ data: { count?: number; results?: unknown[] } }>[] = [
+      api.get('/api/courses/?page_size=1'),
+      api.get('/api/tests/?page_size=1'),
+      api.get('/api/certificates/?page_size=1'),
+    ];
+    if (user?.role === 'admin') {
+      requests.push(api.get('/api/users/?page_size=1'));
     }
-    fetchStats();
-  }, [user?.role]);
+    const results = await Promise.all(requests);
+    const count = (r: { data: { count?: number; results?: unknown[] } }) =>
+      r.data.count ?? r.data.results?.length ?? 0;
+    return {
+      courses: count(results[0]),
+      tests: count(results[1]),
+      certificates: count(results[2]),
+      users: results[3] ? count(results[3]) : 0,
+    };
+  };
 
-  const loading = stats === null;
+  const { data: stats, isLoading } = useSWR(
+    user ? `dashboard-stats-${user.role}` : null, 
+    fetchStats,
+    { revalidateOnFocus: false, errorRetryCount: 1 }
+  );
+
+  const loading = isLoading && !stats;
 
   const cards = [
     { label: 'Курси', value: stats?.courses ?? 0, icon: BookOpen, href: '/dashboard/courses' },

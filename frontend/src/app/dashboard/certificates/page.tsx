@@ -212,23 +212,20 @@ function generatePDF(cert: Certificate) {
   });
 }
 
-export default function CertificatesPage() {
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
-  const [loading, setLoading] = useState(true);
+import useSWR from 'swr';
 
-  useEffect(() => {
-    async function fetch() {
-      try {
-        const { data } = await api.get('/api/certificates/');
-        setCertificates(data.results ?? data);
-      } catch {
-        // API not available
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetch();
-  }, []);
+export default function CertificatesPage() {
+  const fetcher = async () => {
+    const { data } = await api.get('/api/certificates/');
+    return data.results ?? data;
+  };
+
+  const { data, isLoading } = useSWR<Certificate[]>('/api/certificates/', fetcher, {
+    keepPreviousData: true,
+  });
+
+  const certificates = data ?? [];
+  const loading = isLoading && !data;
 
   return (
     <div>

@@ -13,37 +13,31 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Pagination from '@/components/ui/Pagination';
 import EmptyState from '@/components/ui/EmptyState';
 
+import useSWR from 'swr';
+
 export default function CoursesPage() {
   const { user } = useAuth();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const pageSize = 9;
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      async function fetch() {
-        setLoading(true);
-        try {
-          const params = new URLSearchParams();
-          if (search) params.set('search', search);
-          params.set('page', String(page));
-          params.set('page_size', String(pageSize));
-          const { data } = await api.get(`/api/courses/?${params}`);
-          setCourses(data.results ?? data);
-          setTotalCount(data.count ?? 0);
-        } catch {
-          // API not available
-        } finally {
-          setLoading(false);
-        }
-      }
-      fetch();
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [search, page]);
+  const fetcher = async (url: string) => {
+    const { data } = await api.get(url);
+    return data;
+  };
+
+  const queryParams = new URLSearchParams();
+  if (search) queryParams.set('search', search);
+  queryParams.set('page', String(page));
+  queryParams.set('page_size', String(pageSize));
+
+  const { data, isLoading } = useSWR(`/api/courses/?${queryParams.toString()}`, fetcher, {
+    keepPreviousData: true,
+  });
+
+  const courses: Course[] = data?.results ?? data ?? [];
+  const totalCount = data?.count ?? 0;
+  const loading = isLoading && !data;
 
   useEffect(() => { setPage(1); }, [search]);
 
