@@ -2,6 +2,7 @@
 
 import { Menu, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
+import { motion } from 'framer-motion';
 
 interface HeaderProps {
   title?: string;
@@ -26,7 +27,24 @@ export default function Header({ title }: HeaderProps) {
         className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
         title={theme === 'light' ? 'Темна тема' : 'Світла тема'}
       >
-        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+        <div className="relative w-5 h-5 flex items-center justify-center">
+          <motion.div
+            initial={false}
+            animate={{ rotate: theme === 'light' ? 0 : -90, opacity: theme === 'light' ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute"
+          >
+            <Moon size={18} />
+          </motion.div>
+          <motion.div
+            initial={false}
+            animate={{ rotate: theme === 'dark' ? 0 : 90, opacity: theme === 'dark' ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute"
+          >
+            <Sun size={18} />
+          </motion.div>
+        </div>
       </button>
     </header>
   );
