@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, CheckCircle, XCircle, Clock, Award, AlertTriangle,
-  Play, FileText, Target, RotateCcw, Trophy, Pencil, Trash2,
+  Play, FileText, Target, RotateCcw, Trophy, Pencil, Trash2, Users,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -184,8 +184,13 @@ export default function TestDetailPage() {
               <span className="text-sm text-green-700 font-medium">Сертифікат видано автоматично!</span>
             </div>
           )}
-          <div className="flex items-center justify-center gap-3">
-            <Button onClick={() => setPageState('info')}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            {attemptsUsed < maxAttempts ? (
+              <Button onClick={startTest}>
+                <RotateCcw size={16} /> Пройти ще раз
+              </Button>
+            ) : null}
+            <Button variant="outline" onClick={() => setPageState('info')}>
               <ArrowLeft size={16} /> До опису тесту
             </Button>
             <Button variant="outline" onClick={() => router.push('/dashboard/tests')}>
@@ -219,6 +224,12 @@ export default function TestDetailPage() {
               )}
               {(user?.role === 'admin' || user?.role === 'teacher') && (
                 <div className="flex items-center gap-2">
+                  <Link href={`/dashboard/tests/${id}/results`}>
+                    <Button variant="outline" size="sm" className="bg-neutral-900 text-white hover:bg-neutral-800 border-none">
+                      <Users size={14} />
+                      Результати
+                    </Button>
+                  </Link>
                   <Link href={`/dashboard/tests/${id}/edit`}>
                     <Button variant="outline" size="sm">
                       <Pencil size={14} />
