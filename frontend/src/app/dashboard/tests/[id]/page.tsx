@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import toast from 'react-hot-toast';
 import type { Test, TestResult } from '@/types';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -230,7 +231,7 @@ export default function TestDetailPage() {
                       await api.delete(`/api/tests/${id}/`);
                       router.push('/dashboard/tests');
                     } catch {
-                      alert('Помилка видалення');
+                      toast.error('Помилка видалення');
                     }
                   }}>
                     <Trash2 size={14} />

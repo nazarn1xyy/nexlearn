@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, type FormEvent, type ChangeEvent } from 'react';
-import { Camera } from 'lucide-react';
+import { Camera, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
@@ -16,7 +16,7 @@ const roleLabels: Record<string, string> = {
 };
 
 export default function ProfilePage() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const [form, setForm] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -145,6 +145,11 @@ export default function ProfilePage() {
             {saved && (
               <span className="text-sm text-green-600">Збережено!</span>
             )}
+            <div className="flex-1" />
+            <Button type="button" variant="outline" onClick={logout} className="text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200">
+              <LogOut size={16} />
+              <span className="hidden sm:inline">Вийти</span>
+            </Button>
           </div>
         </form>
       </Card>

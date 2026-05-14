@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { Plus, ClipboardCheck, Download, Clock, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
+import toast from 'react-hot-toast';
 import type { Test } from '@/types';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Pagination from '@/components/ui/Pagination';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface ResultSummary {
   test_id: number;
@@ -92,23 +94,21 @@ export default function TestsPage() {
           ))}
         </div>
       ) : tests.length === 0 ? (
-        <Card className="text-center py-16 flex flex-col items-center justify-center border-dashed border-2 bg-neutral-50/50 dark:bg-neutral-900/50">
-          <div className="w-16 h-16 bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex items-center justify-center mb-5">
-            <ClipboardCheck size={32} className="text-neutral-400" />
-          </div>
-          <h3 className="text-xl font-bold mb-2">Тестів не знайдено</h3>
-          <p className="text-neutral-500 max-w-md mx-auto mb-6">
-            Поки що тут порожньо. {canCreate ? "Створіть свій перший тест для перевірки знань слухачів." : "Зачекайте, поки викладачі створять нові тести."}
-          </p>
-          {canCreate && (
-            <Link href="/dashboard/tests/create">
-              <Button>
-                <Plus size={16} />
-                Створити тест
-              </Button>
-            </Link>
-          )}
-        </Card>
+        <EmptyState
+          icon={<ClipboardCheck size={32} />}
+          title="Тестів не знайдено"
+          description={canCreate ? "Створіть свій перший тест для перевірки знань слухачів." : "Зачекайте, поки викладачі створять нові тести."}
+          action={
+            canCreate ? (
+              <Link href="/dashboard/tests/create">
+                <Button>
+                  <Plus size={16} />
+                  Створити тест
+                </Button>
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {tests.map((test) => (
@@ -160,7 +160,7 @@ export default function TestsPage() {
                         a.click();
                         window.URL.revokeObjectURL(url);
                       } catch {
-                        alert('Помилка експорту');
+                        toast.error('Помилка експорту');
                       }
                     }}
                     className="flex items-center gap-1 mt-3 text-xs text-neutral-500 hover:text-black transition-colors"

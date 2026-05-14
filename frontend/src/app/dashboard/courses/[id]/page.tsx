@@ -6,6 +6,7 @@ import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2, 
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
+import toast from 'react-hot-toast';
 import type { Course, CourseComment, Test } from '@/types';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -136,7 +137,7 @@ export default function CourseDetailPage() {
       await api.delete(`/api/courses/${id}/`);
       router.push('/dashboard/courses');
     } catch {
-      alert('Помилка видалення курсу');
+      toast.error('Помилка видалення курсу');
     } finally {
       setDeleting(false);
     }

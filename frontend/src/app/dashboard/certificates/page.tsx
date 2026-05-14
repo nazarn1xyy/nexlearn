@@ -7,6 +7,7 @@ import type { Certificate } from '@/types';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
+import EmptyState from '@/components/ui/EmptyState';
 
 function generatePDF(cert: Certificate) {
   const W = 1400;
@@ -234,17 +235,27 @@ export default function CertificatesPage() {
       <h1 className="text-2xl font-bold mb-6">Сертифікати</h1>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin h-6 w-6 border-2 border-black border-t-transparent rounded-full" />
+        <div className="flex flex-col gap-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="w-full sm:w-1/2">
+                <div className="h-6 bg-neutral-200 dark:bg-neutral-800 animate-pulse rounded-md w-3/4 mb-2"></div>
+                <div className="h-4 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-md w-1/2 mb-3"></div>
+                <div className="flex gap-2">
+                  <div className="h-5 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-md w-16"></div>
+                  <div className="h-4 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-md w-24"></div>
+                </div>
+              </div>
+              <div className="h-9 bg-neutral-200 dark:bg-neutral-800 animate-pulse rounded-md w-32"></div>
+            </Card>
+          ))}
         </div>
       ) : certificates.length === 0 ? (
-        <Card className="text-center py-12">
-          <Award size={40} className="mx-auto text-neutral-300 mb-3" />
-          <p className="text-neutral-500">Сертифікатів поки немає</p>
-          <p className="text-sm text-neutral-400 mt-1">
-            Пройдіть курс та тестування, щоб отримати сертифікат
-          </p>
-        </Card>
+        <EmptyState
+          icon={<Award size={32} />}
+          title="Сертифікатів поки немає"
+          description="Пройдіть курс та тестування, щоб отримати сертифікат"
+        />
       ) : (
         <div className="flex flex-col gap-4">
           {certificates.map((cert) => (

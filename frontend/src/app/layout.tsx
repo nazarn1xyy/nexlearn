@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import ScrollToTop from "@/components/ScrollToTop";
+import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -62,7 +63,22 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider><AuthProvider><ScrollToTop />{children}</AuthProvider></ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ScrollToTop />
+            <Toaster position="top-right" toastOptions={{
+              style: {
+                background: '#000',
+                color: '#fff',
+                borderRadius: '8px',
+              },
+              success: {
+                iconTheme: { primary: '#fff', secondary: '#000' }
+              }
+            }} />
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

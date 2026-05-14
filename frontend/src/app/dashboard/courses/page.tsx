@@ -11,6 +11,7 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import Pagination from '@/components/ui/Pagination';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function CoursesPage() {
   const { user } = useAuth();
@@ -97,23 +98,21 @@ export default function CoursesPage() {
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <Card className="text-center py-16 flex flex-col items-center justify-center border-dashed border-2 bg-neutral-50/50 dark:bg-neutral-900/50">
-          <div className="w-16 h-16 bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex items-center justify-center mb-5">
-            <BookOpen size={32} className="text-neutral-400" />
-          </div>
-          <h3 className="text-xl font-bold mb-2">Курсів не знайдено</h3>
-          <p className="text-neutral-500 max-w-md mx-auto mb-6">
-            Схоже, за вашим запитом немає жодного курсу. {canCreate ? "Створіть новий курс просто зараз, щоб студенти могли навчатися." : "Зачекайте, поки викладачі опублікують нові матеріали."}
-          </p>
-          {canCreate && (
-            <Link href="/dashboard/courses/create">
-              <Button>
-                <Plus size={16} />
-                Створити курс
-              </Button>
-            </Link>
-          )}
-        </Card>
+        <EmptyState
+          icon={<BookOpen size={32} />}
+          title="Курсів не знайдено"
+          description={canCreate ? "Створіть новий курс просто зараз, щоб студенти могли навчатися." : "Зачекайте, поки викладачі опублікують нові матеріали."}
+          action={
+            canCreate ? (
+              <Link href="/dashboard/courses/create">
+                <Button>
+                  <Plus size={16} />
+                  Створити курс
+                </Button>
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {courses.map((course) => (

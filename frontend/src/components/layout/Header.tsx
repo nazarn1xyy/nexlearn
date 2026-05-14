@@ -4,23 +4,22 @@ import { Menu, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 
 interface HeaderProps {
-  onMenuClick: () => void;
   title?: string;
 }
 
-export default function Header({ onMenuClick, title }: HeaderProps) {
+export default function Header({ title }: HeaderProps) {
   const { theme, toggle } = useTheme();
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6 bg-white/90 backdrop-blur-md border-b border-neutral-200">
       <div className="flex items-center gap-4">
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
-        >
-          <Menu size={20} />
-        </button>
-        {title && <h1 className="text-lg font-semibold text-black">{title}</h1>}
+        {title ? (
+          <h1 className="text-lg font-semibold text-black">{title}</h1>
+        ) : (
+          <div className="lg:hidden font-bold text-lg text-black flex items-center gap-2">
+            NexLearn
+          </div>
+        )}
       </div>
       <button
         onClick={toggle}

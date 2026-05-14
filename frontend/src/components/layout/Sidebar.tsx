@@ -9,12 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default memo(function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
@@ -35,30 +30,18 @@ export default memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   return (
-    <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+
 
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-dvh w-64 bg-white border-r border-neutral-200
-          flex flex-col transition-transform duration-300 ease-out will-change-transform
-          lg:translate-x-0 lg:static lg:z-auto lg:h-full
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          hidden lg:flex flex-col sticky top-0 left-0 z-50 h-dvh w-64 bg-white border-r border-neutral-200
         `}
       >
         <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-          <Link href="/dashboard" className="flex items-center gap-2" onClick={onClose}>
+          <Link href="/dashboard" className="flex items-center gap-2">
             <GraduationCap size={24} className="text-black" />
             <span className="font-bold text-lg">NexLearn</span>
           </Link>
-          <button onClick={onClose} className="lg:hidden p-1 hover:bg-neutral-100 rounded">
-            <X size={20} />
-          </button>
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -69,7 +52,6 @@ export default memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onClose}
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                   transition-colors duration-150
@@ -103,6 +85,5 @@ export default memo(function Sidebar({ isOpen, onClose }: SidebarProps) {
           </button>
         </div>
       </aside>
-    </>
   );
 })
