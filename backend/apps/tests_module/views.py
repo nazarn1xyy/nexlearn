@@ -2,6 +2,7 @@ from django.db import models
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.cache import cache
 
 from .models import Test, TestResult
 from .serializers import (
@@ -38,6 +39,23 @@ class TestListCreateView(generics.ListCreateAPIView):
         if course_id:
             qs = qs.filter(course_id=course_id)
         return qs
+
+    def list(self, request, *args, **kwargs):
+        role = getattr(request.user, 'role', 'guest')
+        course_id = request.query_params.get('course')
+        page = request.query_params.get('page', '1')
+
+        if role in ('student', 'guest'):
+            cache_key = f"tests_list_{course_id}_{page}"
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                return Response(cached_data)
+
+            response = super().list(request, *args, **kwargs)
+            cache.set(cache_key, response.data, timeout=60 * 5)
+            return response
+
+        return super().list(request, *args, **kwargs)
 
 
 class TestDetailView(generics.RetrieveUpdateDestroyAPIView):

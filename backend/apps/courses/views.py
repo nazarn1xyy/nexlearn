@@ -3,6 +3,7 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.cache import cache
 
 from .models import Course, CourseMaterial, CourseEnrollment, CourseComment, CourseRating
 from .serializers import (
@@ -54,6 +55,25 @@ class CourseListCreateView(generics.ListCreateAPIView):
             qs = qs.filter(status=status_filter)
 
         return qs
+
+    def list(self, request, *args, **kwargs):
+        role = getattr(request.user, 'role', 'guest')
+        search = request.query_params.get('search')
+        status_filter = request.query_params.get('status')
+        page = request.query_params.get('page', '1')
+
+        # Cache only for students/guests viewing the default published list without search
+        if role in ('student', 'guest') and not search and not status_filter:
+            cache_key = f"courses_list_published_page_{page}"
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                return Response(cached_data)
+                
+            response = super().list(request, *args, **kwargs)
+            cache.set(cache_key, response.data, timeout=60 * 5)  # 5 хвилин
+            return response
+
+        return super().list(request, *args, **kwargs)
 
 
 class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -210,6 +230,11 @@ class CourseAnalyticsView(APIView):
         if course.teacher != request.user and request.user.role != 'admin':
             return Response({'detail': 'У вас немає доступу до аналітики цього курсу'}, status=403)
 
+        cache_key = f"course_analytics_{pk}"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
+
         enrollments = CourseEnrollment.objects.filter(course=course).select_related('student')
         tests = Test.objects.filter(course=course)
         total_tests = tests.count()
@@ -255,10 +280,12 @@ class CourseAnalyticsView(APIView):
                 'avg_score': round(avg_score, 1),
             })
 
-        return Response({
+        response_data = {
             'course_title': course.title,
             'total_students': enrollments.count(),
             'avg_course_progress': round(avg_course_progress, 1),
             'students': students_data,
             'tests': tests_data
-        })
+        }
+        cache.set(cache_key, response_data, timeout=60 * 5)
+        return Response(response_data)

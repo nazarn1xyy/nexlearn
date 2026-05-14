@@ -118,11 +118,21 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10MB
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1')
+
+if os.getenv('USE_REDIS', 'False').lower() == 'true' or os.getenv('REDIS_URL'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
 
 RATELIMIT_USE_CACHE = 'default'
 
