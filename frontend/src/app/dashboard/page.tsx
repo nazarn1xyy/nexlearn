@@ -159,7 +159,7 @@ export default function DashboardPage() {
             <Award size={32} className="text-black dark:text-white" />
           </div>
           <h3 className="text-xl font-bold mb-2 text-black dark:text-white">Продовжуйте в тому ж дусі!</h3>
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-6 max-w-[200px] mx-auto">
+          <p className="text-neutral-800 dark:text-neutral-300 text-sm mb-6 max-w-[200px] mx-auto font-medium">
             Ви успішно проходите матеріали. Залишилося ще трохи до нового сертифікату.
           </p>
           <Link href="/dashboard/courses">
