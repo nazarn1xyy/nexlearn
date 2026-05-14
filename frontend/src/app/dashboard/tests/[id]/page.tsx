@@ -212,12 +212,12 @@ export default function TestDetailPage() {
               <h1 className="text-2xl font-bold break-words">{test.title}</h1>
               <p className="text-sm text-neutral-500 mt-1">{test.course_title}</p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {hasPassed && (
                 <Badge variant="success">Пройдено ✓</Badge>
               )}
               {(user?.role === 'admin' || user?.role === 'teacher') && (
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2">
                   <Link href={`/dashboard/tests/${id}/edit`}>
                     <Button variant="outline" size="sm">
                       <Pencil size={14} />

@@ -165,7 +165,7 @@ export default function CourseDetailPage() {
               {course.status === 'published' ? 'Опубліковано' : 'Чернетка'}
             </Badge>
             {canManage && (
-              <>
+              <div className="flex items-center gap-2 shrink-0">
                 <Link href={`/dashboard/courses/${id}/analytics`}>
                   <Button variant="outline" size="sm">
                     <BarChart3 size={14} />
@@ -182,7 +182,7 @@ export default function CourseDetailPage() {
                   <Trash2 size={14} />
                   Видалити
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>
