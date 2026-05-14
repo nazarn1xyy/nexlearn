@@ -13,17 +13,26 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slowLoading, setSlowLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setSlowLoading(false);
+    
+    const slowTimer = setTimeout(() => {
+      setSlowLoading(true);
+    }, 5000);
+
     try {
       await login(username, password);
     } catch {
       setError('Невірний логін або пароль');
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
+      setSlowLoading(false);
     }
   };
 
@@ -55,6 +64,14 @@ export default function LoginPage() {
 
           {error && (
             <p className="text-sm text-red-500 text-center">{error}</p>
+          )}
+          
+          {slowLoading && !error && (
+            <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
+              <p className="text-sm text-neutral-600 text-center animate-pulse">
+                Сервер "прокидається" після паузи 💤<br/>Будь ласка, зачекайте близько хвилини.
+              </p>
+            </div>
           )}
 
           <Button type="submit" loading={loading} className="w-full mt-2">
