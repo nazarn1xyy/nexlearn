@@ -130,7 +130,14 @@ export default function DashboardPage() {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#888' }} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                  contentStyle={{ 
+                    borderRadius: '12px', 
+                    border: 'none', 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    backgroundColor: 'var(--background)',
+                    color: 'var(--foreground)'
+                  }}
+                  itemStyle={{ color: 'var(--foreground)' }}
                   cursor={{ stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4' }}
                 />
                 <Area 
@@ -147,12 +154,12 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="bg-neutral-900 text-white border-none flex flex-col justify-center items-center text-center p-8 mesh-bg">
-          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-md">
-            <Award size={32} className="text-white" />
+        <Card className="border-neutral-200 dark:border-neutral-800 flex flex-col justify-center items-center text-center p-8 mesh-bg">
+          <div className="w-16 h-16 bg-black/5 dark:bg-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-md">
+            <Award size={32} className="text-black dark:text-white" />
           </div>
           <h3 className="text-xl font-bold mb-2 text-black dark:text-white">Продовжуйте в тому ж дусі!</h3>
-          <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-6 max-w-[200px] mx-auto">
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-6 max-w-[200px] mx-auto">
             Ви успішно проходите матеріали. Залишилося ще трохи до нового сертифікату.
           </p>
           <Link href="/dashboard/courses">
