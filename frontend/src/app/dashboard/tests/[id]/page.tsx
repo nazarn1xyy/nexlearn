@@ -225,7 +225,7 @@ export default function TestDetailPage() {
               {(user?.role === 'admin' || user?.role === 'teacher') && (
                 <>
                   <Link href={`/dashboard/tests/${id}/results`}>
-                    <Button variant="outline" size="sm" className="bg-neutral-900 text-white hover:bg-neutral-800 border-none">
+                    <Button size="sm">
                       <Users size={14} />
                       Результати
                     </Button>
