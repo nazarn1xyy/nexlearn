@@ -218,12 +218,12 @@ export default function TestDetailPage() {
               <h1 className="text-2xl font-bold break-words">{test.title}</h1>
               <p className="text-sm text-neutral-500 mt-1">{test.course_title}</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
               {hasPassed && (
                 <Badge variant="success">Пройдено ✓</Badge>
               )}
               {(user?.role === 'admin' || user?.role === 'teacher') && (
-                <div className="flex items-center gap-2">
+                <>
                   <Link href={`/dashboard/tests/${id}/results`}>
                     <Button variant="outline" size="sm" className="bg-neutral-900 text-white hover:bg-neutral-800 border-none">
                       <Users size={14} />
@@ -248,7 +248,7 @@ export default function TestDetailPage() {
                     <Trash2 size={14} />
                     Видалити
                   </Button>
-                </div>
+                </>
               )}
             </div>
           </div>
