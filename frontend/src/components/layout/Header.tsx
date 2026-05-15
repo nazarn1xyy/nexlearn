@@ -1,8 +1,7 @@
 'use client';
 
-import { Menu, Sun, Moon } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
-import { motion } from 'framer-motion';
 
 interface HeaderProps {
   title?: string;
@@ -28,22 +27,24 @@ export default function Header({ title }: HeaderProps) {
         title={theme === 'light' ? 'Темна тема' : 'Світла тема'}
       >
         <div className="relative w-5 h-5 flex items-center justify-center">
-          <motion.div
-            initial={false}
-            animate={{ rotate: theme === 'light' ? 0 : -90, opacity: theme === 'light' ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute"
+          <div
+            className="absolute transition-all duration-300"
+            style={{
+              transform: theme === 'light' ? 'rotate(0deg)' : 'rotate(-90deg)',
+              opacity: theme === 'light' ? 1 : 0,
+            }}
           >
             <Moon size={18} />
-          </motion.div>
-          <motion.div
-            initial={false}
-            animate={{ rotate: theme === 'dark' ? 0 : 90, opacity: theme === 'dark' ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute"
+          </div>
+          <div
+            className="absolute transition-all duration-300"
+            style={{
+              transform: theme === 'dark' ? 'rotate(0deg)' : 'rotate(90deg)',
+              opacity: theme === 'dark' ? 1 : 0,
+            }}
           >
             <Sun size={18} />
-          </motion.div>
+          </div>
         </div>
       </button>
     </header>

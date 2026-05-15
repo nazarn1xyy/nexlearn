@@ -111,7 +111,7 @@ export default function TestsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {tests.map((test) => (
-            <Link key={test.id} href={`/dashboard/tests/${test.id}`}>
+            <Link key={test.id} href={`/dashboard/tests/${test.id}`} prefetch={false}>
               <Card className={`hover:border-black transition-colors cursor-pointer h-full ${
                 myResults[test.id]?.passed ? 'border-green-300' : ''
               }`}>

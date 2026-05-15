@@ -15,8 +15,12 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import 'katex/dist/katex.min.css';
-import Latex from 'react-latex-next';
+import dynamic from 'next/dynamic';
+
+const Latex = dynamic(() => import('react-latex-next').then(mod => {
+  require('katex/dist/katex.min.css');
+  return mod;
+}), { ssr: false, loading: () => <span>...</span> });
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60);

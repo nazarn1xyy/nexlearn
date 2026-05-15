@@ -110,7 +110,7 @@ export default function CoursesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {courses.map((course) => (
-            <Link key={course.id} href={`/dashboard/courses/${course.id}`}>
+            <Link key={course.id} href={`/dashboard/courses/${course.id}`} prefetch={false}>
               <Card className="hover:border-black transition-colors cursor-pointer h-full">
                 <div className="flex flex-col h-full">
                   <div className="flex items-start justify-between mb-3">

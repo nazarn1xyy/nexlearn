@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, type FormEvent, type ChangeEvent } from 'react';
+import Image from 'next/image';
 import { Camera, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import Input from '@/components/ui/Input';
@@ -70,9 +71,11 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4 mb-4">
           <div className="relative group">
             {user?.avatar ? (
-              <img
+              <Image
                 src={user.avatar}
                 alt="Avatar"
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (

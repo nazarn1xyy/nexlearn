@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -7,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
-export default function BottomNav() {
+export default memo(function BottomNav() {
   const pathname = usePathname();
   const { user } = useAuth();
 
@@ -53,4 +54,4 @@ export default function BottomNav() {
       })}
     </nav>
   );
-}
+});
