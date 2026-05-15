@@ -31,7 +31,8 @@ export default function TestResultsPage() {
           api.get(`/api/tests/${id}/results/`),
         ]);
         setTest(testRes.data);
-        setResults(resultsRes.data);
+        const data = resultsRes.data;
+        setResults(Array.isArray(data) ? data : data.results || []);
       } catch (error: any) {
         if (error.response?.status === 403) {
           router.push('/dashboard/tests');
