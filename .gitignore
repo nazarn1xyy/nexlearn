@@ -16,6 +16,9 @@ staticfiles/
 
 # Node / Next.js
 node_modules/
+*.code-workspace
+Developing Full-Stack Educational Platform.md
+Security and Performance Audit.md
 .next/
 out/
 .turbo/
