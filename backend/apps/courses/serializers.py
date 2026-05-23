@@ -1,6 +1,15 @@
 from rest_framework import serializers
-from .models import Course, CourseMaterial, CourseEnrollment, CourseComment, CourseRating
+from .models import Category, Course, CourseMaterial, CourseEnrollment, CourseComment, CourseRating
 from apps.users.serializers import UserListSerializer
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    courses_count = serializers.IntegerField(read_only=True, default=0)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'courses_count']
+        read_only_fields = ['id']
 
 
 class CourseMaterialSerializer(serializers.ModelSerializer):
@@ -16,10 +25,12 @@ class CourseListSerializer(serializers.ModelSerializer):
     avg_rating = serializers.FloatField(source='_avg_rating', read_only=True, default=None)
     ratings_count = serializers.IntegerField(source='_ratings_count', read_only=True, default=0)
 
+    category_name = serializers.CharField(source='category.name', read_only=True, default=None)
+
     class Meta:
         model = Course
         fields = ['id', 'title', 'description', 'teacher', 'teacher_name',
-                  'status', 'students_count', 'avg_rating', 'ratings_count',
+                  'status', 'category', 'category_name', 'students_count', 'avg_rating', 'ratings_count',
                   'created_at', 'updated_at']
         read_only_fields = ['id', 'teacher', 'created_at', 'updated_at']
 
@@ -32,9 +43,11 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     ratings_count = serializers.IntegerField(source='_ratings_count', read_only=True, default=0)
     is_enrolled = serializers.SerializerMethodField()
 
+    category_name = serializers.CharField(source='category.name', read_only=True, default=None)
+
     class Meta:
         model = Course
-        fields = ['id', 'title', 'description', 'teacher', 'status',
+        fields = ['id', 'title', 'description', 'teacher', 'status', 'category', 'category_name',
                   'materials', 'students_count', 'avg_rating', 'ratings_count',
                   'is_enrolled', 'created_at', 'updated_at']
 
@@ -48,7 +61,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 class CourseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', 'title', 'description', 'status']
+        fields = ['id', 'title', 'description', 'status', 'category']
 
     def create(self, validated_data):
         validated_data['teacher'] = self.context['request'].user

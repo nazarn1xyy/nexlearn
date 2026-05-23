@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2, ClipboardCheck, Clock, CheckCircle, BarChart3 } from 'lucide-react';
+import { Download, UserPlus, FileText, Award, TrendingUp, Send, Pencil, Trash2, ClipboardCheck, Clock, CheckCircle, BarChart3, PenLine } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import api from '@/lib/api';
@@ -41,6 +41,8 @@ export default function CourseDetailPage() {
 
   const [tests, setTests] = useState<Test[]>([]);
   const [myResults, setMyResults] = useState<Record<number, any>>({});
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [mySubmissions, setMySubmissions] = useState<Record<number, any>>({});
 
   const fetchComments = useCallback(async () => {
     try {
@@ -55,14 +57,27 @@ export default function CourseDetailPage() {
         const { data } = await api.get(`/api/courses/${id}/`);
         setCourse(data);
 
-        const [testsRes, resultsRes] = await Promise.all([
+        const [testsRes, resultsRes, assignRes] = await Promise.all([
           api.get(`/api/tests/?course=${id}&page_size=100`),
           api.get('/api/tests/my-results/'),
+          api.get(`/api/assignments/?course=${id}`),
         ]);
         setTests(testsRes.data.results ?? testsRes.data);
         const map: Record<number, any> = {};
         resultsRes.data.forEach((r: any) => { map[r.test_id] = r; });
         setMyResults(map);
+        const assignList = assignRes.data.results ?? assignRes.data;
+        setAssignments(assignList);
+        // Fetch my submissions for each assignment
+        const subMap: Record<number, any> = {};
+        for (const a of assignList) {
+          try {
+            const { data: subs } = await api.get(`/api/assignments/${a.id}/submissions/`);
+            const subList = subs.results ?? subs;
+            if (subList.length > 0) subMap[a.id] = subList[0];
+          } catch { /* skip */ }
+        }
+        setMySubmissions(subMap);
 
         if (data.is_enrolled) {
           const { data: prog } = await api.get(`/api/courses/${id}/progress/`);
@@ -313,6 +328,51 @@ export default function CourseDetailPage() {
                       {result && (
                         <span>Спроб: {result.attempts}/3</span>
                       )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {assignments.length > 0 && (
+        <Card className="mt-4">
+          <div className="flex items-center gap-2 mb-4">
+            <PenLine size={20} />
+            <h2 className="text-lg font-semibold">Завдання з відкритою відповіддю</h2>
+          </div>
+          <div className="flex flex-col gap-3">
+            {assignments.map((a) => {
+              const sub = mySubmissions[a.id];
+              return (
+                <Link key={a.id} href={`/dashboard/assignments/${a.id}`}>
+                  <div className={`p-4 rounded-xl border transition-all hover:shadow-md cursor-pointer ${
+                    sub?.status === 'graded' ? 'border-green-300 bg-green-50/50 dark:bg-green-900/10' :
+                    sub ? 'border-yellow-300 bg-yellow-50/50 dark:bg-yellow-900/10' :
+                    'border-neutral-200 hover:border-black dark:border-neutral-800 dark:hover:border-neutral-500'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-sm line-clamp-1">{a.title}</h3>
+                      {sub?.status === 'graded' ? (
+                        <Badge variant="success"><CheckCircle size={12} className="inline mr-1" />{sub.grade}/{a.max_score}</Badge>
+                      ) : sub ? (
+                        <Badge variant="warning">Очікує перевірки</Badge>
+                      ) : (
+                        <Badge variant="default">Не здано</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-500 line-clamp-2 mb-2">{a.description}</p>
+                    <div className="flex items-center gap-4 text-xs text-neutral-500">
+                      <span>Макс: {a.max_score} б.</span>
+                      {a.due_date && (
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} />
+                          до {new Date(a.due_date).toLocaleDateString('uk-UA')}
+                        </span>
+                      )}
+                      {canManage && <span>Здано: {a.submissions_count}</span>}
                     </div>
                   </div>
                 </Link>

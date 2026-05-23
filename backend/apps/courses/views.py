@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.cache import cache
 
-from .models import Course, CourseMaterial, CourseEnrollment, CourseComment, CourseRating
+from .models import Category, Course, CourseMaterial, CourseEnrollment, CourseComment, CourseRating
 from .serializers import (
+    CategorySerializer,
     CourseListSerializer, CourseDetailSerializer, CourseCreateSerializer,
     CourseMaterialSerializer, EnrollmentSerializer,
     CourseCommentSerializer, CourseRatingSerializer,
@@ -24,8 +25,20 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         return obj.teacher == request.user or request.user.is_admin
 
 
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.annotate(
+        courses_count=db_models.Count('courses'),
+    )
+    serializer_class = CategorySerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAuthenticated(), IsTeacherOrAdmin()]
+        return [permissions.AllowAny()]
+
+
 class CourseListCreateView(generics.ListCreateAPIView):
-    queryset = Course.objects.select_related('teacher').annotate(
+    queryset = Course.objects.select_related('teacher', 'category').annotate(
         _avg_rating=db_models.Avg('ratings__score'),
         _ratings_count=db_models.Count('ratings', distinct=True),
         _students_count=db_models.Count('enrollments', distinct=True),
@@ -53,6 +66,10 @@ class CourseListCreateView(generics.ListCreateAPIView):
         status_filter = self.request.query_params.get('status')
         if status_filter:
             qs = qs.filter(status=status_filter)
+
+        category = self.request.query_params.get('category')
+        if category:
+            qs = qs.filter(category__slug=category)
 
         return qs
 
@@ -264,6 +281,24 @@ class CourseAnalyticsView(APIView):
         avg_course_progress = (total_course_progress / enrollments.count()) if enrollments.exists() else 0
 
         tests_data = []
+        score_buckets = {'0-20': 0, '21-40': 0, '41-60': 0, '61-80': 0, '81-100': 0}
+        all_results = TestResult.objects.filter(test__course=course)
+
+        for r in all_results:
+            s = r.score
+            if s <= 20:
+                score_buckets['0-20'] += 1
+            elif s <= 40:
+                score_buckets['21-40'] += 1
+            elif s <= 60:
+                score_buckets['41-60'] += 1
+            elif s <= 80:
+                score_buckets['61-80'] += 1
+            else:
+                score_buckets['81-100'] += 1
+
+        score_distribution = [{'range': k, 'count': v} for k, v in score_buckets.items()]
+
         for test in tests:
             results = TestResult.objects.filter(test=test)
             total_attempts = results.count()
@@ -272,20 +307,67 @@ class CourseAnalyticsView(APIView):
 
             pass_rate = (passed_attempts / total_attempts * 100) if total_attempts > 0 else 0
 
+            question_stats = []
+            questions = list(test.questions.order_by('order'))
+            if questions and total_attempts > 0:
+                for idx, q in enumerate(questions):
+                    correct_count = 0
+                    for r in results:
+                        answers = r.answers or []
+                        if idx < len(answers):
+                            a = answers[idx]
+                            if q.question_type == 'single':
+                                try:
+                                    if int(a) == q.correct_answer:
+                                        correct_count += 1
+                                except (ValueError, TypeError):
+                                    pass
+                            elif q.question_type == 'multiple':
+                                try:
+                                    user_ans = sorted([int(x) for x in a])
+                                    correct_ans = sorted([int(x) for x in q.correct_answers])
+                                    if user_ans == correct_ans:
+                                        correct_count += 1
+                                except (ValueError, TypeError):
+                                    pass
+                            elif q.question_type == 'text':
+                                user_ans = str(a).strip().lower()
+                                correct_ans = [str(x).strip().lower() for x in q.correct_answers]
+                                if user_ans in correct_ans:
+                                    correct_count += 1
+                    question_stats.append({
+                        'question': q.question_text[:80],
+                        'correct_pct': round(correct_count / total_attempts * 100, 1),
+                    })
+
             tests_data.append({
                 'id': test.id,
                 'title': test.title,
                 'total_attempts': total_attempts,
                 'pass_rate': round(pass_rate, 1),
                 'avg_score': round(avg_score, 1),
+                'question_stats': question_stats,
             })
+
+        from django.db.models.functions import TruncDate
+        enrollment_timeline = list(
+            CourseEnrollment.objects.filter(course=course)
+            .annotate(date=TruncDate('enrolled_at'))
+            .values('date')
+            .annotate(count=db_models.Count('id'))
+            .order_by('date')
+        )
+        for item in enrollment_timeline:
+            item['date'] = item['date'].isoformat()
 
         response_data = {
             'course_title': course.title,
             'total_students': enrollments.count(),
             'avg_course_progress': round(avg_course_progress, 1),
             'students': students_data,
-            'tests': tests_data
+            'tests': tests_data,
+            'score_distribution': score_distribution,
+            'enrollment_timeline': enrollment_timeline,
         }
         cache.set(cache_key, response_data, timeout=60 * 5)
         return Response(response_data)

@@ -24,6 +24,19 @@ def validate_safe_file_10mb(value):
             raise ValidationError('Цей тип файлу заборонено з міркувань безпеки.')
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name='Назва')
+    slug = models.SlugField(max_length=100, unique=True, verbose_name='Slug')
+
+    class Meta:
+        verbose_name = 'Категорія'
+        verbose_name_plural = 'Категорії'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Course(models.Model):
     class Status(models.TextChoices):
         DRAFT = 'draft', 'Чернетка'
@@ -36,6 +49,14 @@ class Course(models.Model):
         on_delete=models.CASCADE,
         related_name='taught_courses',
         verbose_name='Викладач',
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='courses',
+        verbose_name='Категорія',
     )
     status = models.CharField(
         max_length=10,

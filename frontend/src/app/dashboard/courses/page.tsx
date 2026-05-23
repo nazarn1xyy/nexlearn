@@ -15,10 +15,13 @@ import EmptyState from '@/components/ui/EmptyState';
 
 import useSWR from 'swr';
 
+interface CategoryItem { id: number; name: string; slug: string; courses_count: number; }
+
 export default function CoursesPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [category, setCategory] = useState('');
   const pageSize = 9;
 
   const fetcher = async (url: string) => {
@@ -26,8 +29,15 @@ export default function CoursesPage() {
     return data;
   };
 
+  const { data: categoriesData } = useSWR<CategoryItem[]>('/api/courses/categories/', async () => {
+    const { data } = await api.get('/api/courses/categories/');
+    return data.results ?? data;
+  });
+  const categories = categoriesData ?? [];
+
   const queryParams = new URLSearchParams();
   if (search) queryParams.set('search', search);
+  if (category) queryParams.set('category', category);
   queryParams.set('page', String(page));
   queryParams.set('page_size', String(pageSize));
 
@@ -39,7 +49,7 @@ export default function CoursesPage() {
   const totalCount = data?.count ?? 0;
   const loading = isLoading && !data;
 
-  useEffect(() => { setPage(1); }, [search]);
+  useEffect(() => { setPage(1); }, [search, category]);
 
   const canCreate = user?.role === 'teacher' || user?.role === 'admin';
 
@@ -63,16 +73,31 @@ export default function CoursesPage() {
         )}
       </div>
 
-      <div className="relative mb-6">
-        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-        <input
-          type="text"
-          placeholder="Пошук курсів..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-neutral-300 rounded-lg text-sm
-            focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-        />
+      <div className="flex gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <input
+            type="text"
+            placeholder="Пошук курсів..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-lg text-sm
+              bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+          />
+        </div>
+        {categories.length > 0 && (
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="px-3 py-2.5 border border-neutral-300 dark:border-neutral-700 rounded-lg text-sm
+              bg-white dark:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-black min-w-[140px]"
+          >
+            <option value="">Усі категорії</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.slug}>{c.name} ({c.courses_count})</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {loading ? (
@@ -122,7 +147,12 @@ export default function CoursesPage() {
                   <p className="text-sm text-neutral-500 line-clamp-2 flex-1">
                     {course.description}
                   </p>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
+                  {(course as any).category_name && (
+                    <span className="inline-block text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded mt-2 w-fit">
+                      {(course as any).category_name}
+                    </span>
+                  )}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
                     <span className="text-xs text-neutral-400">
                       {course.teacher_name || 'Викладач'}
                     </span>

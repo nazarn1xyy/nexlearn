@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/courses/', include('apps.courses.urls')),
     path('api/tests/', include('apps.tests_module.urls')),
     path('api/certificates/', include('apps.certificates.urls')),
+    path('api/assignments/', include('apps.assignments.urls')),
 ]
 
 if settings.DEBUG:
