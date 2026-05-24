@@ -72,7 +72,7 @@ export default function TestDetailPage() {
       }
     }
     fetchData();
-  }, [id, router]);
+  }, [id, router, user]);
 
   const bestResult = previousResults.length > 0
     ? previousResults.reduce((best, r) => (r.score > best.score ? r : best), previousResults[0])

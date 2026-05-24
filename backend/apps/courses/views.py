@@ -80,8 +80,9 @@ class CourseListCreateView(generics.ListCreateAPIView):
         page = request.query_params.get('page', '1')
 
         # Cache only for students/guests viewing the default published list without search
+        category_filter = request.query_params.get('category')
         if role in ('student', 'guest') and not search and not status_filter:
-            cache_key = f"courses_list_published_page_{page}"
+            cache_key = f"courses_list_published_page_{page}_cat_{category_filter or 'all'}"
             cached_data = cache.get(cache_key)
             if cached_data:
                 return Response(cached_data)
@@ -94,7 +95,7 @@ class CourseListCreateView(generics.ListCreateAPIView):
 
 
 class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Course.objects.select_related('teacher').prefetch_related('materials').annotate(
+    queryset = Course.objects.select_related('teacher', 'category').prefetch_related('materials').annotate(
         _avg_rating=db_models.Avg('ratings__score'),
         _ratings_count=db_models.Count('ratings', distinct=True),
         _students_count=db_models.Count('enrollments', distinct=True),
@@ -115,6 +116,11 @@ class CourseEnrollView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
+        if request.user.role not in ('student',):
+            return Response(
+                {'detail': 'Лише слухачі можуть записуватися на курси.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         try:
             course = Course.objects.get(pk=pk, status='published')
         except Course.DoesNotExist:
@@ -217,14 +223,18 @@ class CourseRateView(APIView):
 
     def post(self, request, pk):
         score = request.data.get('score')
-        if not score or int(score) < 1 or int(score) > 5:
+        try:
+            score = int(score)
+        except (TypeError, ValueError):
+            score = 0
+        if score < 1 or score > 5:
             return Response(
                 {'detail': 'Оцінка повинна бути від 1 до 5.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         rating, _ = CourseRating.objects.update_or_create(
             course_id=pk, student=request.user,
-            defaults={'score': int(score)},
+            defaults={'score': score},
         )
         avg = CourseRating.objects.filter(course_id=pk).aggregate(
             avg=db_models.Avg('score'), count=db_models.Count('id'),
@@ -253,39 +263,41 @@ class CourseAnalyticsView(APIView):
             return Response(cached_data)
 
         enrollments = CourseEnrollment.objects.filter(course=course).select_related('student')
-        tests = Test.objects.filter(course=course)
+        tests = Test.objects.filter(course=course).prefetch_related('questions')
         total_tests = tests.count()
+
+        # Batch: count passed tests per student in one query
+        passed_per_student = (
+            TestResult.objects.filter(
+                test__course=course, passed=True,
+            )
+            .values('student_id')
+            .annotate(passed_count=db_models.Count('test', distinct=True))
+        )
+        passed_map = {row['student_id']: row['passed_count'] for row in passed_per_student}
 
         students_data = []
         total_course_progress = 0
-
         for enrollment in enrollments:
-            passed_tests = TestResult.objects.filter(
-                student=enrollment.student,
-                test__course=course,
-                passed=True
-            ).values('test').distinct().count()
-            
+            passed_tests = passed_map.get(enrollment.student_id, 0)
             progress = (passed_tests / total_tests * 100) if total_tests > 0 else 0
             total_course_progress += progress
-            
             students_data.append({
                 'id': enrollment.student.id,
                 'name': f"{enrollment.student.first_name} {enrollment.student.last_name}",
                 'email': enrollment.student.email,
                 'progress': round(progress, 1),
                 'passed_tests': passed_tests,
-                'enrolled_at': enrollment.enrolled_at
+                'enrolled_at': enrollment.enrolled_at,
             })
 
-        avg_course_progress = (total_course_progress / enrollments.count()) if enrollments.exists() else 0
+        enroll_count = enrollments.count()
+        avg_course_progress = (total_course_progress / enroll_count) if enroll_count > 0 else 0
 
-        tests_data = []
+        # Score distribution in one query
+        all_results = list(TestResult.objects.filter(test__course=course).values_list('score', 'test_id'))
         score_buckets = {'0-20': 0, '21-40': 0, '41-60': 0, '61-80': 0, '81-100': 0}
-        all_results = TestResult.objects.filter(test__course=course)
-
-        for r in all_results:
-            s = r.score
+        for s, _ in all_results:
             if s <= 20:
                 score_buckets['0-20'] += 1
             elif s <= 40:
@@ -296,23 +308,40 @@ class CourseAnalyticsView(APIView):
                 score_buckets['61-80'] += 1
             else:
                 score_buckets['81-100'] += 1
-
         score_distribution = [{'range': k, 'count': v} for k, v in score_buckets.items()]
 
-        for test in tests:
-            results = TestResult.objects.filter(test=test)
-            total_attempts = results.count()
-            passed_attempts = results.filter(passed=True).count()
-            avg_score = results.aggregate(avg=db_models.Avg('score'))['avg'] or 0
+        # Aggregate test stats in one query
+        test_stats_qs = (
+            Test.objects.filter(course=course)
+            .annotate(
+                total_attempts=db_models.Count('results'),
+                passed_attempts=db_models.Count('results', filter=db_models.Q(results__passed=True)),
+                _avg_score=db_models.Avg('results__score'),
+            )
+        )
+        test_stats_map = {t.id: t for t in test_stats_qs}
 
+        # Prefetch all results for question stats (batch)
+        results_by_test = {}
+        all_result_objs = TestResult.objects.filter(test__course=course).only('test_id', 'answers')
+        for r in all_result_objs:
+            results_by_test.setdefault(r.test_id, []).append(r)
+
+        tests_data = []
+        for test in tests:
+            ts = test_stats_map.get(test.id)
+            total_attempts = ts.total_attempts if ts else 0
+            passed_attempts = ts.passed_attempts if ts else 0
+            avg_score = ts._avg_score or 0
             pass_rate = (passed_attempts / total_attempts * 100) if total_attempts > 0 else 0
 
             question_stats = []
             questions = list(test.questions.order_by('order'))
+            test_results = results_by_test.get(test.id, [])
             if questions and total_attempts > 0:
                 for idx, q in enumerate(questions):
                     correct_count = 0
-                    for r in results:
+                    for r in test_results:
                         answers = r.answers or []
                         if idx < len(answers):
                             a = answers[idx]

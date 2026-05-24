@@ -46,7 +46,8 @@ class TestListCreateView(generics.ListCreateAPIView):
         page = request.query_params.get('page', '1')
 
         if role in ('student', 'guest'):
-            cache_key = f"tests_list_{course_id}_{page}"
+            page_size = request.query_params.get('page_size', '20')
+            cache_key = f"tests_list_{course_id}_{page}_{page_size}"
             cached_data = cache.get(cache_key)
             if cached_data:
                 return Response(cached_data)
@@ -100,7 +101,14 @@ class SubmitTestView(APIView):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-        attempts = TestResult.objects.filter(student=request.user, test=test).count()
+        from django.db import transaction
+        with transaction.atomic():
+            attempts = (
+                TestResult.objects
+                .select_for_update()
+                .filter(student=request.user, test=test)
+                .count()
+            )
         if attempts >= 3:
             return Response(
                 {'detail': 'Ви вичерпали кількість спроб (макс. 3).'},
@@ -152,10 +160,24 @@ class SubmitTestView(APIView):
         )
 
         if passed:
-            Certificate.objects.get_or_create(
-                student=request.user,
-                course=test.course,
+            # Issue certificate only when ALL course tests are passed
+            course_tests = Test.objects.filter(course=test.course)
+            total_course_tests = course_tests.count()
+            passed_course_tests = (
+                TestResult.objects.filter(
+                    student=request.user,
+                    test__course=test.course,
+                    passed=True,
+                )
+                .values('test')
+                .distinct()
+                .count()
             )
+            if total_course_tests > 0 and passed_course_tests >= total_course_tests:
+                Certificate.objects.get_or_create(
+                    student=request.user,
+                    course=test.course,
+                )
 
         return Response(TestResultSerializer(result).data, status=status.HTTP_201_CREATED)
 

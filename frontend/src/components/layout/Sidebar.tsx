@@ -34,13 +34,13 @@ export default memo(function Sidebar() {
 
       <aside
         className={`
-          hidden lg:flex flex-col sticky top-0 left-0 z-50 h-dvh w-64 bg-white border-r border-neutral-200
+          hidden lg:flex flex-col sticky top-0 left-0 z-50 h-dvh w-64 bg-white dark:bg-[#0a0a0a] border-r border-neutral-200 dark:border-neutral-800
         `}
       >
-        <div className="flex items-center justify-between p-6 border-b border-neutral-200">
+        <div className="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-neutral-800">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <GraduationCap size={24} className="text-black" />
-            <span className="font-bold text-lg">NexLearn</span>
+            <GraduationCap size={24} className="text-black dark:text-white" />
+            <span className="font-bold text-lg dark:text-white">NexLearn</span>
           </Link>
         </div>
 
@@ -56,8 +56,8 @@ export default memo(function Sidebar() {
                   flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                   transition-colors duration-150
                   ${active
-                    ? 'bg-black text-white'
-                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-black'
+                    ? 'bg-black text-white dark:bg-white dark:text-black'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white'
                   }
                 `}
               >
@@ -68,9 +68,9 @@ export default memo(function Sidebar() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-neutral-200">
+        <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
           <div className="mb-3 px-3">
-            <p className="text-sm font-medium truncate">
+            <p className="text-sm font-medium truncate dark:text-white">
               {user?.first_name} {user?.last_name}
             </p>
             <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
@@ -78,7 +78,7 @@ export default memo(function Sidebar() {
           <button
             onClick={logout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm
-              text-neutral-600 hover:bg-neutral-100 hover:text-black transition-colors"
+              text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
           >
             <LogOut size={18} />
             Вийти

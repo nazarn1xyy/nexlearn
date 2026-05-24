@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from apps.courses.models import validate_safe_file_10mb
 
 
 class Assignment(models.Model):
@@ -48,7 +49,7 @@ class AssignmentSubmission(models.Model):
         verbose_name='Студент',
     )
     text = models.TextField(blank=True, verbose_name='Відповідь')
-    file = models.FileField(upload_to='submissions/', blank=True, null=True, verbose_name='Файл')
+    file = models.FileField(upload_to='submissions/', blank=True, null=True, verbose_name='Файл', validators=[validate_safe_file_10mb])
     status = models.CharField(
         max_length=10,
         choices=Status.choices,

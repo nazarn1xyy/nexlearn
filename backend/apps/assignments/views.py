@@ -44,7 +44,10 @@ class AssignmentListCreateView(generics.ListCreateAPIView):
 
 
 class AssignmentDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Assignment.objects.select_related('created_by', 'course')
+    queryset = Assignment.objects.select_related('created_by', 'course').annotate(
+        submissions_count=db_models.Count('submissions'),
+        graded_count=db_models.Count('submissions', filter=db_models.Q(submissions__status='graded')),
+    )
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
@@ -105,9 +108,16 @@ class GradeSubmissionView(APIView):
 
     def post(self, request, pk):
         try:
-            submission = AssignmentSubmission.objects.select_related('assignment').get(pk=pk)
+            submission = AssignmentSubmission.objects.select_related('assignment__course__teacher').get(pk=pk)
         except AssignmentSubmission.DoesNotExist:
             return Response({'detail': 'Відповідь не знайдено.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verify that the grading teacher owns the course
+        if submission.assignment.course.teacher != request.user and request.user.role != 'admin':
+            return Response(
+                {'detail': 'Ви не є викладачем цього курсу.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         serializer = GradeSubmissionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

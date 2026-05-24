@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Input from '@/components/ui/Input';
@@ -15,9 +15,17 @@ export default function CreateCoursePage() {
     title: '',
     description: '',
     status: 'draft',
+    category: '',
   });
+  const [categories, setCategories] = useState<{ id: number; name: string; slug: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    api.get('/api/courses/categories/').then(({ data }) => {
+      setCategories(data.results ?? data);
+    }).catch(() => {});
+  }, []);
 
   const update = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -27,7 +35,8 @@ export default function CreateCoursePage() {
     setLoading(true);
     setError('');
     try {
-      await api.post('/api/courses/', form);
+      const payload = { ...form, category: form.category ? Number(form.category) : null };
+      await api.post('/api/courses/', payload);
       router.push('/dashboard/courses');
     } catch {
       setError('Помилка створення курсу');
@@ -54,6 +63,15 @@ export default function CreateCoursePage() {
             onChange={(e) => update('description', e.target.value)}
             placeholder="Опишіть курс..."
             required
+          />
+          <Select
+            label="Категорія"
+            value={form.category}
+            onChange={(e) => update('category', e.target.value)}
+            options={[
+              { value: '', label: 'Без категорії' },
+              ...categories.map(c => ({ value: String(c.id), label: c.name })),
+            ]}
           />
           <Select
             label="Статус"

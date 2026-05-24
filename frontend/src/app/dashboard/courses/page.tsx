@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Plus, BookOpen, Search, Star } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
@@ -17,9 +17,19 @@ import useSWR from 'swr';
 
 interface CategoryItem { id: number; name: string; slug: string; courses_count: number; }
 
+function useDebounce(value: string, delay: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
 export default function CoursesPage() {
   const { user } = useAuth();
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState('');
   const pageSize = 9;
@@ -36,7 +46,7 @@ export default function CoursesPage() {
   const categories = categoriesData ?? [];
 
   const queryParams = new URLSearchParams();
-  if (search) queryParams.set('search', search);
+  if (debouncedSearch) queryParams.set('search', debouncedSearch);
   if (category) queryParams.set('category', category);
   queryParams.set('page', String(page));
   queryParams.set('page_size', String(pageSize));
@@ -49,7 +59,7 @@ export default function CoursesPage() {
   const totalCount = data?.count ?? 0;
   const loading = isLoading && !data;
 
-  useEffect(() => { setPage(1); }, [search, category]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, category]);
 
   const canCreate = user?.role === 'teacher' || user?.role === 'admin';
 
@@ -147,9 +157,9 @@ export default function CoursesPage() {
                   <p className="text-sm text-neutral-500 line-clamp-2 flex-1">
                     {course.description}
                   </p>
-                  {(course as any).category_name && (
+                  {course.category_name && (
                     <span className="inline-block text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded mt-2 w-fit">
-                      {(course as any).category_name}
+                      {course.category_name}
                     </span>
                   )}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">

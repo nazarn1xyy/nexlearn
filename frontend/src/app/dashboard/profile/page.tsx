@@ -3,6 +3,7 @@
 import { useState, useRef, type FormEvent, type ChangeEvent } from 'react';
 import Image from 'next/image';
 import { Camera, LogOut } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '@/lib/auth';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
@@ -44,7 +45,7 @@ export default function ProfilePage() {
       formData.append('avatar', file);
       await updateUser(formData);
     } catch {
-      // error
+      toast.error('Помилка завантаження аватара');
     } finally {
       setAvatarUploading(false);
     }
@@ -57,7 +58,7 @@ export default function ProfilePage() {
       await updateUser(form);
       setSaved(true);
     } catch {
-      // error
+      toast.error('Помилка збереження профілю');
     } finally {
       setLoading(false);
     }

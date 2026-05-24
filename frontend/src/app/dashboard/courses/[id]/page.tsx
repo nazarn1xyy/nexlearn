@@ -68,15 +68,17 @@ export default function CourseDetailPage() {
         setMyResults(map);
         const assignList = assignRes.data.results ?? assignRes.data;
         setAssignments(assignList);
-        // Fetch my submissions for each assignment
+        // Fetch my submissions in parallel
         const subMap: Record<number, any> = {};
-        for (const a of assignList) {
-          try {
-            const { data: subs } = await api.get(`/api/assignments/${a.id}/submissions/`);
-            const subList = subs.results ?? subs;
-            if (subList.length > 0) subMap[a.id] = subList[0];
-          } catch { /* skip */ }
-        }
+        const subResults = await Promise.allSettled(
+          assignList.map((a: any) => api.get(`/api/assignments/${a.id}/submissions/`))
+        );
+        subResults.forEach((res: any, i: number) => {
+          if (res.status === 'fulfilled') {
+            const subList = res.value.data.results ?? res.value.data;
+            if (subList.length > 0) subMap[assignList[i].id] = subList[0];
+          }
+        });
         setMySubmissions(subMap);
 
         if (data.is_enrolled) {

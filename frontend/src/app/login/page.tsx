@@ -40,7 +40,7 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8 bg-[var(--background)] safe-bottom">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <GraduationCap size={40} className="text-black mb-3" />
+          <GraduationCap size={40} className="text-black dark:text-white mb-3" />
           <h1 className="text-2xl font-bold">Вхід в систему</h1>
           <p className="text-sm text-neutral-500 mt-1">NexLearn</p>
         </div>
@@ -81,7 +81,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-sm text-center text-neutral-500">
           Немає акаунту?{' '}
-          <Link href="/register" className="text-black font-medium hover:underline">
+          <Link href="/register" className="text-black dark:text-white font-medium hover:underline">
             Зареєструватися
           </Link>
         </p>

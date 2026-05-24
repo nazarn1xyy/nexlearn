@@ -25,6 +25,8 @@ export interface Course {
   teacher: number | User;
   teacher_name?: string;
   status: 'draft' | 'published';
+  category?: number | null;
+  category_name?: string | null;
   students_count?: number;
   avg_rating?: number | null;
   ratings_count?: number;
